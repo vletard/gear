@@ -12,7 +12,7 @@ import java.util.Collections;
 /*
  * An ArrayList that is unmodifiable, immutable.
  */
-public class UnmodifiableArrayList<E> implements List<E>, RandomAccess, Cloneable, Unmodifiable{
+public class UnmodifiableArrayList<E> implements List<E>, RandomAccess, Cloneable{
   private List<E> list;
 
   public UnmodifiableArrayList(List<E> src){

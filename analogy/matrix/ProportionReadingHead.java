@@ -1,9 +1,6 @@
 package analogy.matrix;
 
-import java.lang.Exception;
-
 import analogy.Proportion;
-import util.UnmodifiableArrayList;
 
 public class ProportionReadingHead<E>{
   private final Proportion<E> p;
@@ -40,7 +37,7 @@ public class ProportionReadingHead<E>{
     return currentDegree;
   }
 
-  private ProportionReadingHead(ProportionReadingHead<E> previous, Step step){
+  private ProportionReadingHead(ProportionReadingHead<E> previous, Step step) throws ImpossibleStepException{
     this.p = previous.p;
     int a = previous.a;
     int b = previous.b;
@@ -59,7 +56,7 @@ public class ProportionReadingHead<E>{
       case BD : b += 1;
                 d += 1;
                 break;
-
+      case UNDEFINED: throw new ImpossibleStepException();
     }
     this.a = a;
     this.b = b;
@@ -75,8 +72,6 @@ public class ProportionReadingHead<E>{
   }
 
   public ProportionReadingHead<E> makeStep(Step step) throws ImpossibleStepException{
-    if (canStep(step) == false)
-      throw new ImpossibleStepException();
     return new ProportionReadingHead<E>(this, step);
   }
 
