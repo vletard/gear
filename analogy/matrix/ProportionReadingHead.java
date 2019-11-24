@@ -1,91 +1,167 @@
 package analogy.matrix;
 
+import java.util.List;
+
 import analogy.Proportion;
+import analogy.matrix.Step;
 
 public class ProportionReadingHead<E>{
-  private final Proportion<E> p;
+  private final Proportion<E> proportion;
   private final int a, b, c, d;
-  private final int currentDegree;
-  private final Step lastStep;
-
-  /*
-   * @Override
-   */
-  public String toString(){
-    String repr = "[ ";
-    repr = repr + p.A.subList(0, a) + "|" + p.A.subList(a, p.A.size());
-    repr = repr + " : ";
-    repr = repr + p.B.subList(0, b) + "|" + p.B.subList(b, p.B.size());
-    repr = repr + " :?: ";
-    repr = repr + p.C.subList(0, c) + "|" + p.C.subList(c, p.C.size());
-    repr = repr + " : ";
-    repr = repr + p.D.subList(0, d) + "|" + p.D.subList(d, p.D.size());
-    return repr;
-  }
+  private final List<Factor<E>> factors;
 
   public ProportionReadingHead(Proportion<E> p){
-    this.p = p;
+    this.proportion = p;
     this.a = 0;
     this.b = 0;
     this.c = 0;
     this.d = 0;
-    this.currentDegree = 1;
-    this.lastStep = Step.UNDEFINED;
+    this.factors = Factorizations.newFactorization();
   }
 
   public int getCurrentDegree(){
-    return currentDegree;
+    return this.factors.size();
   }
 
   private ProportionReadingHead(ProportionReadingHead<E> previous, Step step) throws ImpossibleStepException{
-    this.p = previous.p;
+    if (!previous.canStep(step))
+      throw new ImpossibleStepException();
+    this.proportion = previous.proportion;
     int a = previous.a;
     int b = previous.b;
     int c = previous.c;
     int d = previous.d;
     switch (step){
-      case AB : a += 1;
+      case AB : this.factors = Factorizations.extendListB(previous.factors, false, previous.getB());
+                a += 1;
                 b += 1;
                 break;
-      case AC : a += 1;
+      case AC : this.factors = Factorizations.extendListC(previous.factors, true, previous.getC());
+                a += 1;
                 c += 1;
                 break;
-      case CD : c += 1;
+      case CD : this.factors = Factorizations.extendListC(previous.factors, false, previous.getC());
+                c += 1;
                 d += 1;
                 break;
-      case BD : b += 1;
+      case BD : this.factors = Factorizations.extendListB(previous.factors, true, previous.getB());
+                b += 1;
                 d += 1;
                 break;
-      case UNDEFINED: throw new ImpossibleStepException();
+      default: throw new IllegalArgumentException("A new reading head can only be created with a defined step.");
     }
     this.a = a;
     this.b = b;
     this.c = c;
     this.d = d;
-    this.lastStep = step;
-    if (   previous.lastStep == Step.UNDEFINED ||
-         ((previous.lastStep == Step.AB || previous.lastStep == Step.CD) && (step == Step.AB || step == Step.CD)) ||
-	 ((previous.lastStep == Step.AC || previous.lastStep == Step.BD) && (step == Step.AC || step == Step.BD))    )
-      this.currentDegree = previous.currentDegree;
-    else 
-      this.currentDegree = previous.currentDegree + 1;
   }
 
-  public ProportionReadingHead<E> makeStep(Step step) throws ImpossibleStepException{
-    return new ProportionReadingHead<E>(this, step);
+  /**
+   * Creates and return a new {@link ProportionReadingHead} obtained by performing
+   * the specified {@link Step}.
+   * @param step Step to apply on the current reading head.
+   * @param fastForward Whether to automatically repeat the same step as far as possible (keeping the same degree).  
+   * @return A new reading head after performing the given step.
+   * @throws ImpossibleStepException If the step cannot be applied.
+   */
+  public ProportionReadingHead<E> makeStep(Step step, boolean fastForward) throws ImpossibleStepException{
+    ProportionReadingHead<E> newHead = new ProportionReadingHead<E>(this, step);
+    if (fastForward) {
+      // An alternative to fast forwarding steps can be to adjust the tracking of explored 
+      // reading heads (in Proportion.check()) by ignoring factors when comparing two
+      // ProportionReadingHead for equality (equality would only depend on indices).
+      while (newHead.canStep(step)) {
+        ProportionReadingHead<E> fastForwardHead = newHead.makeStep(step, fastForward);
+        if (fastForwardHead.getCurrentDegree() > newHead.getCurrentDegree())
+          break;
+        else
+          newHead = fastForwardHead;
+      }
+    }
+    return newHead;
   }
 
   public boolean canStep(Step step){
     switch (step){
-      case AB : return (a < p.A.size() && b < p.B.size() && p.A.get(a) == p.B.get(b));
-      case AC : return (a < p.A.size() && c < p.C.size() && p.A.get(a) == p.C.get(c));
-      case CD : return (c < p.C.size() && d < p.D.size() && p.C.get(c) == p.D.get(d));
-      case BD : return (b < p.B.size() && d < p.D.size() && p.B.get(b) == p.D.get(d));
+      case AB : return (a < proportion.A.size() && b < proportion.B.size() && proportion.A.get(a) == proportion.B.get(b));
+      case AC : return (a < proportion.A.size() && c < proportion.C.size() && proportion.A.get(a) == proportion.C.get(c));
+      case CD : return (c < proportion.C.size() && d < proportion.D.size() && proportion.C.get(c) == proportion.D.get(d));
+      case BD : return (b < proportion.B.size() && d < proportion.D.size() && proportion.B.get(b) == proportion.D.get(d));
       default : return false;
     }
   }
 
   public boolean isFinished(){
-    return (a == p.A.size() && b == p.B.size() && c == p.C.size() && d == p.D.size());
+    return (a == proportion.A.size() && b == proportion.B.size() && c == proportion.C.size() && d == proportion.D.size());
+  }
+
+  private E getB(){
+    return this.proportion.B.get(this.b);
+  }
+
+  private E getC(){
+    return this.proportion.C.get(this.c);
+  }
+
+
+  @Override
+  public String toString(){
+    String repr = "";
+    repr = repr + proportion.A.subList(0, a) + "|" + proportion.A.subList(a, proportion.A.size());
+    repr = repr + " : \n";
+    repr = repr + proportion.B.subList(0, b) + "|" + proportion.B.subList(b, proportion.B.size());
+    repr = repr + " :?: \n";
+    repr = repr + proportion.C.subList(0, c) + "|" + proportion.C.subList(c, proportion.C.size());
+    repr = repr + " : \n";
+    repr = repr + proportion.D.subList(0, d) + "|" + proportion.D.subList(d, proportion.D.size());
+    return repr;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + a;
+    result = prime * result + b;
+    result = prime * result + c;
+    result = prime * result + d;
+    result = prime * result + ((factors == null) ? 0 : factors.hashCode());
+    result = prime * result + ((proportion == null) ? 0 : proportion.hashCode());
+    return result;
+  }
+
+  @SuppressWarnings("rawtypes")
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ProportionReadingHead other = (ProportionReadingHead) obj;
+    if (a != other.a)
+      return false;
+    if (b != other.b)
+      return false;
+    if (c != other.c)
+      return false;
+    if (d != other.d)
+      return false;
+    if (factors == null) {
+      if (other.factors != null)
+        return false;
+    } else if (!factors.equals(other.factors))
+      return false;
+    if (proportion == null) {
+      if (other.proportion != null)
+        return false;
+    } else if (!proportion.equals(other.proportion))
+      return false;
+    return true;
+  }
+
+  public List<Factor<E>> getFactors() {
+    return this.factors;
   }
 }

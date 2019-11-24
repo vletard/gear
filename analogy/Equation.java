@@ -13,7 +13,7 @@ import java.util.TreeMap;
 
 import analogy.matrix.EquationReadingHead;
 import analogy.matrix.Factor;
-import analogy.matrix.Factors;
+import analogy.matrix.Factorizations;
 import analogy.matrix.ImpossibleStepException;
 import analogy.matrix.Step;
 import util.UnmodifiableArrayList;
@@ -65,9 +65,9 @@ public class Equation<E>{
     SortedMap<Integer, Queue<EquationReadingHead<E>>> readingRegister = new TreeMap<Integer, Queue<EquationReadingHead<E>>>();
     {
       EquationReadingHead<E> head = new EquationReadingHead<E>(this);
-      Queue<EquationReadingHead<E>> l = new LinkedList<EquationReadingHead<E>>();
-      l.add(head);
-      readingRegister.put(head.getDegree(), l);
+      Queue<EquationReadingHead<E>> q = new LinkedList<EquationReadingHead<E>>();
+      q.add(head);
+      readingRegister.put(head.getCurrentDegree(), q);
     }
 
     /*
@@ -86,7 +86,7 @@ public class Equation<E>{
       
       if (currentHead.isFinished()) {
         List<Factor<E>> factorList = currentHead.getFactorList();
-        List<E> sequence = Factors.extractSolution(factorList);
+        List<E> sequence = Factorizations.extractSolution(factorList);
         this.solutions.putIfAbsent(currentDegree, new SolutionMap<E>());
         this.solutions.get(currentDegree).putIfAbsent(sequence, new HashSet<List<Factor<E>>>());
         this.solutions.get(currentDegree).get(sequence).add(factorList);
@@ -95,8 +95,8 @@ public class Equation<E>{
         try{
           for (Step step : new Step[]{Step.AB, Step.AC, Step.CD, Step.BD}) {
             if (currentHead.canStep(step)){
-              EquationReadingHead<E> newHead = new EquationReadingHead<E>(currentHead, step);
-              int newDegree = newHead.getDegree();
+              EquationReadingHead<E> newHead = currentHead.makeStep(step);
+              int newDegree = newHead.getCurrentDegree();
               readingRegister.putIfAbsent(newDegree, new LinkedList<EquationReadingHead<E>>());
               readingRegister.get(newDegree).add(newHead);
             }

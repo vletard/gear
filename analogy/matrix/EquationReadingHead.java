@@ -26,7 +26,7 @@ public class EquationReadingHead<E>{
     this.a = 0;
     this.b = 0;
     this.c = 0;
-    this.factors = Factors.newList();
+    this.factors = Factorizations.newFactorization();
   }
 
   private E getB(){
@@ -37,7 +37,7 @@ public class EquationReadingHead<E>{
     return this.equation.C.get(this.c);
   }
   
-  public EquationReadingHead(EquationReadingHead<E> eqn, Step step) throws ImpossibleStepException{
+  private EquationReadingHead(EquationReadingHead<E> eqn, Step step) throws ImpossibleStepException{
     if (!eqn.canStep(step))
       throw new ImpossibleStepException();
     this.equation = eqn.equation;
@@ -45,18 +45,18 @@ public class EquationReadingHead<E>{
     int b = eqn.b;
     int c = eqn.c;
     switch (step){
-      case AB : this.factors = Factors.extendListB(eqn.factors, false, eqn.getB());
+      case AB : this.factors = Factorizations.extendListB(eqn.factors, false, eqn.getB());
                 a += 1;
                 b += 1;
                 break;
-      case AC : this.factors = Factors.extendListC(eqn.factors, true, eqn.getC());
+      case AC : this.factors = Factorizations.extendListC(eqn.factors, true, eqn.getC());
                 a += 1;
                 c += 1;
                 break;
-      case CD : this.factors = Factors.extendListC(eqn.factors, false, eqn.getC());
+      case CD : this.factors = Factorizations.extendListC(eqn.factors, false, eqn.getC());
                 c += 1;
                 break;
-      case BD : this.factors = Factors.extendListB(eqn.factors, true, eqn.getB());
+      case BD : this.factors = Factorizations.extendListB(eqn.factors, true, eqn.getB());
                 b += 1;
                 break;
       default: throw new IllegalArgumentException("A new reading head can only be created with a defined step.");
@@ -80,11 +80,15 @@ public class EquationReadingHead<E>{
     return (a == equation.A.size() && b == equation.B.size() && c == equation.C.size());
   }
 
-  public int getDegree() {
+  public int getCurrentDegree() {
     return this.factors.size();
   }
 
   public List<Factor<E>> getFactorList() {
     return factors;
+  }
+
+  public EquationReadingHead<E> makeStep(Step step) throws ImpossibleStepException {
+    return new EquationReadingHead<E>(this, step);
   }
 }
