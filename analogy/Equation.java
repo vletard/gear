@@ -86,7 +86,7 @@ public class Equation<E>{
       
       if (currentHead.isFinished()) {
         List<Factor<E>> factorList = currentHead.getFactorList();
-        List<E> sequence = Factorizations.extractSolution(factorList);
+        List<E> sequence = Factorizations.extractElement(factorList, Element.D);
         this.solutions.putIfAbsent(currentDegree, new SolutionMap<E>());
         this.solutions.get(currentDegree).putIfAbsent(sequence, new HashSet<List<Factor<E>>>());
         this.solutions.get(currentDegree).get(sequence).add(factorList);

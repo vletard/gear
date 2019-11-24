@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import analogy.Element;
+
 /**
  * This tool class provides primitives for managing Factor lists.
  * In general factors, and factor lists are not meant to be edited. No Factor list returned
@@ -19,7 +21,7 @@ public class Factorizations {
    * Extends the provided Factor list with the provided item on B and D if crossed is true,
    * on A and B otherwise.
    * The extended Factor list is returned, the provided list is not edited.
-   * @param <E> Type of elements in the factorization.
+   * @param <E> Type of objects in the factorization.
    * @param factors The factorization to be extended, will not be edited.
    * @param crossed Whether the new item should be added as crossed factor or not (see {@link Factor}).
    * @param item Item to be added for extension.
@@ -38,7 +40,7 @@ public class Factorizations {
    * Extends the provided Factor list with the provided item on A and C if crossed is true,
    * on C and D otherwise.
    * The extended Factor list is returned, the provided list is not edited.
-   * @param <E> Type of elements in the factorization.
+   * @param <E> Type of objects in the factorization.
    * @param factorization The factorization to be extended, will not be edited.
    * @param crossed Whether the new item should be added as crossed factor or not (see {@link Factor}).
    * @param item Item to be added for extension.
@@ -55,7 +57,7 @@ public class Factorizations {
   
   /**
    * Returns a new empty (immutable) factorization.
-   * @param <E> Type of elements in the factorization (actually in the extensions of the factorization).
+   * @param <E> Type of objects in the factorization (actually in the extensions of the factorization).
    * @return An immutable factorization of type <E>.
    */
   public static <E> List<Factor<E>> newFactorization(){
@@ -64,7 +66,7 @@ public class Factorizations {
   
   /**
    * Concatenates string expressions of items in the provided list and return the resulting string.
-   * @param <E> Type of elements in the factorization.
+   * @param <E> Type of objects in the factorization.
    * @param l List of which elements are to be concatenated.
    * @return The concatenation of the string representation of all the elements in the provided list.
    */
@@ -76,19 +78,33 @@ public class Factorizations {
     return str;
   }
   
-  public static <E> List<E> extractSolution(List<Factor<E>> factorization){
-    LinkedList<E> solution = new LinkedList<E>();
+  /**
+   * Extracts, concatenates and returns the specified element of the given factorization.
+   * @param <E> Type of objects in the factorization.
+   * @param factorization The Factorization from which to extract an element.
+   * @param e The element to be extracted.
+   * @return A list representing the concatenation of the sequence of the element.
+   */
+  public static <E> List<E> extractElement(List<Factor<E>> factorization, Element e){
+    LinkedList<E> element = new LinkedList<E>();
     Iterator<Factor<E>> it = factorization.iterator();
     while (it.hasNext()) {
       Factor<E> f = it.next();
-      if (f.isCrossed())
-        solution.addAll(f.getB());
+      if ((f.isCrossed() && (e == Element.B || e == Element.D))
+          || (!f.isCrossed() && (e == Element.A || e == Element.B)))
+        element.addAll(f.getB());
       else
-        solution.addAll(f.getC());
+        element.addAll(f.getC());
     }
-    return solution;
+    return element;
   }
 
+  /**
+   * Computes a 4 line string representation of the aligned factors of the given factorization.
+   * @param <E> Type of objects in the factorization.
+   * @param factorization The factorization to be aligned in a string.
+   * @return A 4 line string representation of the factorization.
+   */
   public static <E> String toString(List<Factor<E>> factorization) {
     ArrayList<Integer> maxSizes = new ArrayList<Integer>();
     for (int i=0; i<factorization.size(); i++) {
