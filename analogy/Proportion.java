@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -28,11 +27,10 @@ public class Proportion<E>{
   private List<Factor<E>> factorization;
   
   public static class InvalidProportionException extends Exception{
+    private static final long serialVersionUID = -5958668638828140006L;
     public InvalidProportionException(String string) {
       super(string);
     }
-
-    private static final long serialVersionUID = -5958668638828140006L;
   }
 
   public Proportion(UnmodifiableArrayList<E> A, UnmodifiableArrayList<E> B, UnmodifiableArrayList<E> C, UnmodifiableArrayList<E> D){
@@ -96,10 +94,9 @@ public class Proportion<E>{
           for (Step step : new Step[]{Step.AB, Step.AC, Step.CD, Step.BD}) {
             if (currentHead.canStep(step)){
               ProportionReadingHead<E> result = currentHead.makeStep(step, true);
-              if (!explored.contains(result)) {
+              if (explored.add(result)) {
                 readingRegister.putIfAbsent(result.getCurrentDegree(), new LinkedList<ProportionReadingHead<E>>());
                 readingRegister.get(result.getCurrentDegree()).add(result);
-                explored.add(result);
               }
             }
           }
@@ -117,7 +114,7 @@ public class Proportion<E>{
    * @return false if the proportion between the sequences is impossible
    */
   private boolean checkCounts() {
-    if (this.A.size() + this.D.size() != this.B.size() + this.C.size())
+    if (this.A.size() + this.D.size() - this.B.size() - this.C.size() != 0)
       return false;
 
     Map<E, Integer> counts = new HashMap<E, Integer>();

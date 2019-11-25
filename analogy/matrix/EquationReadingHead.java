@@ -66,6 +66,11 @@ public class EquationReadingHead<E>{
     this.c = c;
   }
 
+  /**
+   * Checks whether a given {@link Step} is possible for the current state of this reading head.
+   * @param step the Step to be tested
+   * @return true if the current state allows the step, false otherwise
+   */
   public boolean canStep(Step step){
     switch (step){
     case AB : return (a < equation.A.size() && b < equation.B.size() && equation.A.get(a) == equation.B.get(b));
@@ -76,19 +81,95 @@ public class EquationReadingHead<E>{
     }
   }
 
+  /**
+   * Checks whether this EquationReadingHead has reached the sink of the matrix. If true,
+   * the factorization in this EquationReadingHead must contain the solution to the Equation.
+   * See the getFactors() method. 
+   * @return true if the progress in the matrix has finished.
+   */
   public boolean isFinished(){
     return (a == equation.A.size() && b == equation.B.size() && c == equation.C.size());
   }
 
+  /**
+   * Returns the degree of this EquationReadingHead for its current state.
+   * If isFinished() is false, the returned degree is a lower bound for the degree of
+   * a potential solution.
+   * @return The current degree of this EquationReadingHead.
+   */
   public int getCurrentDegree() {
     return this.factors.size();
   }
 
-  public List<Factor<E>> getFactorList() {
+  /**
+   * Returns the factorization corresponding to this EquationReadingHead, for its current state.
+   * It contains the solution built up to this state.
+   * @return the factorization (list of {@link Factor}) of this EquationReadingHead.
+   */
+  public List<Factor<E>> getFactors() {
     return factors;
   }
 
-  public EquationReadingHead<E> makeStep(Step step) throws ImpossibleStepException {
-    return new EquationReadingHead<E>(this, step);
+  /**
+   * Creates and return a new {@link EquationReadingHead} obtained by performing
+   * the specified {@link Step}.
+   * @param step Step to apply on the current reading head.
+   * @param fastForward Whether to automatically repeat the same step as far as possible (keeping the same degree).  
+   * @return A new reading head after performing the given step.
+   * @throws ImpossibleStepException If the step cannot be applied.
+   */
+  public EquationReadingHead<E> makeStep(Step step, boolean fastForward) throws ImpossibleStepException {
+    EquationReadingHead<E> newHead = new EquationReadingHead<E>(this, step);
+    if (fastForward && step != Step.BD && step != Step.CD) {
+      while (newHead.canStep(step)) {
+        EquationReadingHead<E> fastForwardHead = newHead.makeStep(step, fastForward);
+        if (fastForwardHead.getCurrentDegree() > newHead.getCurrentDegree())
+          break;
+        else
+          newHead = fastForwardHead;
+      }
+    }
+    return newHead;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + a;
+    result = prime * result + b;
+    result = prime * result + c;
+    result = prime * result + ((equation == null) ? 0 : equation.hashCode());
+    result = prime * result + ((factors == null) ? 0 : factors.hashCode());
+    return result;
+  }
+
+  @SuppressWarnings("rawtypes")
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    EquationReadingHead other = (EquationReadingHead) obj;
+    if (a != other.a)
+      return false;
+    if (b != other.b)
+      return false;
+    if (c != other.c)
+      return false;
+    if (equation == null) {
+      if (other.equation != null)
+        return false;
+    } else if (!equation.equals(other.equation))
+      return false;
+    if (factors == null) {
+      if (other.factors != null)
+        return false;
+    } else if (!factors.equals(other.factors))
+      return false;
+    return true;
   }
 }

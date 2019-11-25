@@ -19,6 +19,12 @@ public class ProportionReadingHead<E>{
     this.factors = Factorizations.newFactorization();
   }
 
+  /**
+   * Returns the degree of this ProportionReadingHead for its current state.
+   * If isFinished() is false, the returned degree is a lower bound for the degree of
+   * a potential factorization (if the Proportion is valid).
+   * @return The current degree of this ProportionReadingHead.
+   */
   public int getCurrentDegree(){
     return this.factors.size();
   }
@@ -81,6 +87,11 @@ public class ProportionReadingHead<E>{
     return newHead;
   }
 
+  /**
+   * Checks whether a given {@link Step} is possible for the current state of this reading head.
+   * @param step the Step to be tested
+   * @return true if the current state allows the step, false otherwise
+   */
   public boolean canStep(Step step){
     switch (step){
       case AB : return (a < proportion.A.size() && b < proportion.B.size() && proportion.A.get(a) == proportion.B.get(b));
@@ -91,6 +102,11 @@ public class ProportionReadingHead<E>{
     }
   }
 
+  /**
+   * Checks whether this ProportionReadingHead has reached the sink of the matrix. If true,
+   * the linked Proportion must be valid.
+   * @return true if the progress in the matrix has finished.
+   */
   public boolean isFinished(){
     return (a == proportion.A.size() && b == proportion.B.size() && c == proportion.C.size() && d == proportion.D.size());
   }
@@ -160,7 +176,11 @@ public class ProportionReadingHead<E>{
       return false;
     return true;
   }
-
+  
+  /**
+   * Returns the factorization corresponding to this ProportionReadingHead, for its current state.
+   * @return the factorization (list of {@link Factor}) of this ProportionReadingHead.
+   */
   public List<Factor<E>> getFactors() {
     return this.factors;
   }

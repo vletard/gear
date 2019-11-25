@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import analogy.Equation.NoSolutionException;
+import analogy.Equation.SolutionMap;
 import analogy.matrix.Factor;
 
 public class Main{
-  public static void main(String[] args){
+  public static void main(String[] args) throws NoSolutionException{
     CharacterSequence A = new CharacterSequence("baa");
     CharacterSequence B = new CharacterSequence("aba");
     CharacterSequence C = new CharacterSequence("aab");
@@ -21,14 +23,10 @@ public class Main{
     System.out.println(p);
 
     e.solveBest();
-    Iterator<Entry<Integer, Equation<Character>.SolutionMap<Character>>> it = e.getSolutions().entrySet().iterator();
-    while (it.hasNext()) {
-      Entry<Integer, Equation<Character>.SolutionMap<Character>> degree = it.next();
-      Iterator<Entry<List<Character>, Set<List<Factor<Character>>>>> it2 = degree.getValue().entrySet().iterator();
-      while (it2.hasNext()) {
-        Entry<List<Character>, Set<List<Factor<Character>>>> solution = it2.next();
-        System.out.println(solution.getKey() + " (degree " + degree.getKey() + ") has " + solution.getValue().size() + " distinct alignments.");
-      }
+    Iterator<Entry<List<Character>, Set<List<Factor<Character>>>>> it2 = e.getBestSolutions().entrySet().iterator();
+    while (it2.hasNext()) {
+      Entry<List<Character>, Set<List<Factor<Character>>>> solution = it2.next();
+      System.out.println(solution.getKey() + " (degree " + e.getBestDegree() + ") has " + solution.getValue().size() + " distinct alignments.");
     }
   }
 }
