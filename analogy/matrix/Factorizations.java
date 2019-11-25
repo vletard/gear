@@ -98,6 +98,20 @@ public class Factorizations {
     }
     return element;
   }
+  
+  /**
+   * Returns the size (length of alignment in number of objects) of the provided factorization.
+   * @param factorization The factorization from which to compute the size.
+   * @return The size of the factorization.
+   */
+  public static <E> int getSize(List<Factor<E>> factorization) {
+    int size = 0;
+    for (int i=0; i<factorization.size(); i++) {
+      Factor<E> f = factorization.get(i);
+      size += Math.max(concatenateList(f.getB()).length(), concatenateList(f.getC()).length());
+    }
+    return size;
+  }
 
   /**
    * Computes a 4 line string representation of the aligned factors of the given factorization.
