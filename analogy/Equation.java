@@ -5,11 +5,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import analogy.matrix.EquationReadingHead;
 import analogy.matrix.Factor;
@@ -132,10 +130,10 @@ public class Equation<E>{
     if (! this.checkCounts())
       return;
 
-    SortedMap<Integer, NavigableSet<EquationReadingHead<E>>> readingRegister = new TreeMap<Integer, NavigableSet<EquationReadingHead<E>>>();
+    SortedMap<Integer, Set<EquationReadingHead<E>>> readingRegister = new TreeMap<Integer, Set<EquationReadingHead<E>>>();
     {
       EquationReadingHead<E> head = new EquationReadingHead<E>(this);
-      NavigableSet<EquationReadingHead<E>> s = new TreeSet<EquationReadingHead<E>>();
+      Set<EquationReadingHead<E>> s = new HashSet<EquationReadingHead<E>>();
       s.add(head);
       readingRegister.put(head.getCurrentDegree(), s);
     }
@@ -150,11 +148,11 @@ public class Equation<E>{
         (this.solutions.isEmpty() || readingRegister.firstKey() <= this.solutions.firstKey())){
 
       int currentDegree = readingRegister.firstKey();
-      NavigableSet<EquationReadingHead<E>> s = readingRegister.get(currentDegree);
-      EquationReadingHead<E> currentHead = s.pollFirst();
+      Set<EquationReadingHead<E>> s = readingRegister.get(currentDegree);
+      EquationReadingHead<E> currentHead = s.iterator().next();
+      s.remove(currentHead);
       if (s.isEmpty())
         readingRegister.remove(currentDegree);
-
 
       if (currentHead.isFinished()) {
         List<Factor<E>> factorList = currentHead.getFactors();
@@ -167,22 +165,12 @@ public class Equation<E>{
         try{
           for (Step step : new Step[]{Step.AB, Step.AC, Step.CD, Step.BD}) {
             if (currentHead.canStep(step)){
-              EquationReadingHead<E> newHead;
-              int newDegree;
-              
-                newHead = currentHead.makeStep(step, true);
-                newDegree = newHead.getCurrentDegree();
-                readingRegister.putIfAbsent(newDegree, new TreeSet<EquationReadingHead<E>>());
-                readingRegister.get(newDegree).add(newHead);
-              
-              if (step == Step.BD || step == Step.CD) {
-                newHead = currentHead.makeStep(step, false);
-                newDegree = newHead.getCurrentDegree();
-                readingRegister.putIfAbsent(newDegree, new TreeSet<EquationReadingHead<E>>());
-                readingRegister.get(newDegree).add(newHead);
-              }
+              EquationReadingHead<E> newHead = currentHead.makeStep(step, true);
+              int newDegree = newHead.getCurrentDegree();
+              readingRegister.putIfAbsent(newDegree, new HashSet<EquationReadingHead<E>>());
+              readingRegister.get(newDegree).add(newHead);
             }
-          }    
+          }
         } catch(ImpossibleStepException e) {
           throw new RuntimeException(e);
         }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import analogy.Equation;
 
-public class EquationReadingHead<E> implements Comparable<EquationReadingHead<E>>{
+public class EquationReadingHead<E>{
   private final Equation<E> equation;
   private final int a, b, c;
   private final List<Factor<E>> factors;
@@ -29,7 +29,7 @@ public class EquationReadingHead<E> implements Comparable<EquationReadingHead<E>
   private E getC(){
     return this.equation.C.get(this.c);
   }
-  
+
   private EquationReadingHead(EquationReadingHead<E> eqn, Step step) throws ImpossibleStepException{
     if (!eqn.canStep(step))
       throw new ImpossibleStepException();
@@ -38,21 +38,21 @@ public class EquationReadingHead<E> implements Comparable<EquationReadingHead<E>
     int b = eqn.b;
     int c = eqn.c;
     switch (step){
-      case AB : this.factors = Factorizations.extendListB(eqn.factors, false, eqn.getB());
-                a += 1;
-                b += 1;
-                break;
-      case AC : this.factors = Factorizations.extendListC(eqn.factors, true, eqn.getC());
-                a += 1;
-                c += 1;
-                break;
-      case CD : this.factors = Factorizations.extendListC(eqn.factors, false, eqn.getC());
-                c += 1;
-                break;
-      case BD : this.factors = Factorizations.extendListB(eqn.factors, true, eqn.getB());
-                b += 1;
-                break;
-      default: throw new IllegalArgumentException("A new reading head can only be created with a defined step.");
+    case AB : this.factors = Factorizations.extendListB(eqn.factors, false, eqn.getB());
+    a += 1;
+    b += 1;
+    break;
+    case AC : this.factors = Factorizations.extendListC(eqn.factors, true, eqn.getC());
+    a += 1;
+    c += 1;
+    break;
+    case CD : this.factors = Factorizations.extendListC(eqn.factors, false, eqn.getC());
+    c += 1;
+    break;
+    case BD : this.factors = Factorizations.extendListB(eqn.factors, true, eqn.getB());
+    b += 1;
+    break;
+    default: throw new IllegalArgumentException("A new reading head can only be created with a defined step.");
     }
     this.a = a;
     this.b = b;
@@ -114,7 +114,7 @@ public class EquationReadingHead<E> implements Comparable<EquationReadingHead<E>
   public EquationReadingHead<E> makeStep(Step step, boolean fastForward) throws ImpossibleStepException {
     EquationReadingHead<E> newHead = new EquationReadingHead<E>(this, step);
     if (fastForward) {
-      while (newHead.canStep(step)) {
+      while (newHead.canStep(step) && (step != Step.BD || !newHead.canStep(Step.AB)) && (step != Step.CD || !newHead.canStep(Step.AC)) ) {
         EquationReadingHead<E> fastForwardHead = newHead.makeStep(step, fastForward);
         if (fastForwardHead.getCurrentDegree() > newHead.getCurrentDegree())
           break;
@@ -164,18 +164,5 @@ public class EquationReadingHead<E> implements Comparable<EquationReadingHead<E>
     } else if (!factors.equals(other.factors))
       return false;
     return true;
-  }
-
-  @Override
-  public int compareTo(EquationReadingHead<E> o) {
-    if (!this.equation.equals(o.equation))
-      throw new IllegalArgumentException("Cannot compare reading heads from different equations.");
-    int diff = this.a - o.a;
-    if (diff != 0)
-      return diff;
-    diff = this.b - o.b;
-    if (diff != 0)
-      return diff;
-    return this.c - o.c;
   }
 }
