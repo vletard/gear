@@ -4,21 +4,14 @@ import java.util.List;
 
 import analogy.Equation;
 
-public class EquationReadingHead<E>{
+public class EquationReadingHead<E> implements Comparable<EquationReadingHead<E>>{
   private final Equation<E> equation;
   private final int a, b, c;
   private final List<Factor<E>> factors;
 
   @Override
   public String toString(){
-    String repr = "[ ";
-    repr = repr + equation.A.subList(0, a) + "|" + equation.A.subList(a, equation.A.size());
-    repr = repr + " : ";
-    repr = repr + equation.B.subList(0, b) + "|" + equation.B.subList(b, equation.B.size());
-    repr = repr + " :?: ";
-    repr = repr + equation.C.subList(0, c) + "|" + equation.C.subList(c, equation.C.size());
-    repr = repr + " ]";
-    return repr;
+    return Factorizations.toString(this.factors);
   }
 
   public EquationReadingHead(Equation<E> p){
@@ -120,7 +113,7 @@ public class EquationReadingHead<E>{
    */
   public EquationReadingHead<E> makeStep(Step step, boolean fastForward) throws ImpossibleStepException {
     EquationReadingHead<E> newHead = new EquationReadingHead<E>(this, step);
-    if (fastForward && step != Step.BD && step != Step.CD) {
+    if (fastForward) {
       while (newHead.canStep(step)) {
         EquationReadingHead<E> fastForwardHead = newHead.makeStep(step, fastForward);
         if (fastForwardHead.getCurrentDegree() > newHead.getCurrentDegree())
@@ -171,5 +164,18 @@ public class EquationReadingHead<E>{
     } else if (!factors.equals(other.factors))
       return false;
     return true;
+  }
+
+  @Override
+  public int compareTo(EquationReadingHead<E> o) {
+    if (!this.equation.equals(o.equation))
+      throw new IllegalArgumentException("Cannot compare reading heads from different equations.");
+    int diff = this.a - o.a;
+    if (diff != 0)
+      return diff;
+    diff = this.b - o.b;
+    if (diff != 0)
+      return diff;
+    return this.c - o.c;
   }
 }

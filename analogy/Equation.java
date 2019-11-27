@@ -3,21 +3,18 @@ package analogy;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Queue;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import analogy.matrix.EquationReadingHead;
 import analogy.matrix.Factor;
 import analogy.matrix.Factorizations;
 import analogy.matrix.ImpossibleStepException;
-import analogy.matrix.ProportionReadingHead;
 import analogy.matrix.Step;
 import util.UnmodifiableArrayList;
 
@@ -39,7 +36,7 @@ public class Equation<E>{
   public class SolutionMap<T> extends HashMap<List<T>, Set<List<Factor<T>>>>{
     private static final long serialVersionUID = -2236281191394013633L;
   }
-  
+
   /**
    * This is an exception to be thrown when trying to perform an operation on a solution
    * but no solution could be found.
@@ -135,13 +132,12 @@ public class Equation<E>{
     if (! this.checkCounts())
       return;
 
-    Set<EquationReadingHead<E>> explored = new HashSet<EquationReadingHead<E>>();
-    SortedMap<Integer, Queue<EquationReadingHead<E>>> readingRegister = new TreeMap<Integer, Queue<EquationReadingHead<E>>>();
+    SortedMap<Integer, NavigableSet<EquationReadingHead<E>>> readingRegister = new TreeMap<Integer, NavigableSet<EquationReadingHead<E>>>();
     {
       EquationReadingHead<E> head = new EquationReadingHead<E>(this);
-      Queue<EquationReadingHead<E>> q = new LinkedList<EquationReadingHead<E>>();
-      q.add(head);
-      readingRegister.put(head.getCurrentDegree(), q);
+      NavigableSet<EquationReadingHead<E>> s = new TreeSet<EquationReadingHead<E>>();
+      s.add(head);
+      readingRegister.put(head.getCurrentDegree(), s);
     }
 
     /*
@@ -153,20 +149,12 @@ public class Equation<E>{
     while (!readingRegister.isEmpty() && 
         (this.solutions.isEmpty() || readingRegister.firstKey() <= this.solutions.firstKey())){
 
-      /*
-      Iterator<Entry<Integer, Queue<EquationReadingHead<E>>>> it = readingRegister.entrySet().iterator();
-      while (it.hasNext()) {
-        Entry<Integer, Queue<EquationReadingHead<E>>> entry = it.next();
-        System.out.println(entry.getKey() + " -> " + entry.getValue().size());
-      }
-      System.out.println();
-      */
-      
       int currentDegree = readingRegister.firstKey();
-      Queue<EquationReadingHead<E>> q = readingRegister.get(currentDegree);
-      EquationReadingHead<E> currentHead = q.poll();
-      if (q.isEmpty())
+      NavigableSet<EquationReadingHead<E>> s = readingRegister.get(currentDegree);
+      EquationReadingHead<E> currentHead = s.pollFirst();
+      if (s.isEmpty())
         readingRegister.remove(currentDegree);
+
 
       if (currentHead.isFinished()) {
         List<Factor<E>> factorList = currentHead.getFactors();
@@ -179,14 +167,22 @@ public class Equation<E>{
         try{
           for (Step step : new Step[]{Step.AB, Step.AC, Step.CD, Step.BD}) {
             if (currentHead.canStep(step)){
-              EquationReadingHead<E> newHead = currentHead.makeStep(step, true);
-              if (explored.add(newHead)) {
-                int newDegree = newHead.getCurrentDegree();
-                readingRegister.putIfAbsent(newDegree, new LinkedList<EquationReadingHead<E>>());
+              EquationReadingHead<E> newHead;
+              int newDegree;
+              
+                newHead = currentHead.makeStep(step, true);
+                newDegree = newHead.getCurrentDegree();
+                readingRegister.putIfAbsent(newDegree, new TreeSet<EquationReadingHead<E>>());
+                readingRegister.get(newDegree).add(newHead);
+              
+              if (step == Step.BD || step == Step.CD) {
+                newHead = currentHead.makeStep(step, false);
+                newDegree = newHead.getCurrentDegree();
+                readingRegister.putIfAbsent(newDegree, new TreeSet<EquationReadingHead<E>>());
                 readingRegister.get(newDegree).add(newHead);
               }
             }
-          }
+          }    
         } catch(ImpossibleStepException e) {
           throw new RuntimeException(e);
         }
