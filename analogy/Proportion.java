@@ -3,10 +3,8 @@ package analogy;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -70,19 +68,19 @@ public class Proportion<E>{
     if (! this.checkCounts())
       return false;
 
-    Set<ProportionReadingHead<E>> explored = new HashSet<ProportionReadingHead<E>>();
-    SortedMap<Integer, Queue<ProportionReadingHead<E>>> readingRegister = new TreeMap<Integer, Queue<ProportionReadingHead<E>>>();
+    SortedMap<Integer, Set<ProportionReadingHead<E>>> readingRegister = new TreeMap<Integer, Set<ProportionReadingHead<E>>>();
     {
       ProportionReadingHead<E> head = new ProportionReadingHead<E>(this);
-      Queue<ProportionReadingHead<E>> q = new LinkedList<ProportionReadingHead<E>>();
-      q.add(head);
-      readingRegister.put(head.getCurrentDegree(), q);
+      Set<ProportionReadingHead<E>> s = new HashSet<ProportionReadingHead<E>>();
+      s.add(head);
+      readingRegister.put(head.getCurrentDegree(), s);
     }
     while(!readingRegister.isEmpty()){
       int currentDegree = readingRegister.firstKey();
-      Queue<ProportionReadingHead<E>> q = readingRegister.get(currentDegree);
-      ProportionReadingHead<E> currentHead = q.poll();
-      if (q.isEmpty())
+      Set<ProportionReadingHead<E>> s = readingRegister.get(currentDegree);
+      ProportionReadingHead<E> currentHead = s.iterator().next();
+      s.remove(currentHead);
+      if (s.isEmpty())
         readingRegister.remove(currentDegree);
       
       if (currentHead.isFinished()) {
@@ -94,10 +92,8 @@ public class Proportion<E>{
           for (Step step : new Step[]{Step.AB, Step.AC, Step.CD, Step.BD}) {
             if (currentHead.canStep(step)){
               ProportionReadingHead<E> result = currentHead.makeStep(step, true);
-              if (explored.add(result)) {
-                readingRegister.putIfAbsent(result.getCurrentDegree(), new LinkedList<ProportionReadingHead<E>>());
-                readingRegister.get(result.getCurrentDegree()).add(result);
-              }
+              readingRegister.putIfAbsent(result.getCurrentDegree(), new HashSet<ProportionReadingHead<E>>());
+              readingRegister.get(result.getCurrentDegree()).add(result);
             }
           }
         } catch(ImpossibleStepException e) {
