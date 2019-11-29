@@ -66,8 +66,8 @@ public class EquationReadingHead<E>{
    */
   public boolean canStep(Step step){
     switch (step){
-    case AB : return (a < equation.A.size() && b < equation.B.size() && equation.A.get(a) == equation.B.get(b));
-    case AC : return (a < equation.A.size() && c < equation.C.size() && equation.A.get(a) == equation.C.get(c));
+    case AB : return (a < equation.A.size() && b < equation.B.size() && equation.A.get(a).equals(equation.B.get(b)));
+    case AC : return (a < equation.A.size() && c < equation.C.size() && equation.A.get(a).equals(equation.C.get(c)));
     case CD : return (c < equation.C.size());
     case BD : return (b < equation.B.size());
     default : return false;

@@ -94,10 +94,10 @@ public class ProportionReadingHead<E>{
    */
   public boolean canStep(Step step){
     switch (step){
-      case AB : return (a < proportion.A.size() && b < proportion.B.size() && proportion.A.get(a) == proportion.B.get(b));
-      case AC : return (a < proportion.A.size() && c < proportion.C.size() && proportion.A.get(a) == proportion.C.get(c));
-      case CD : return (c < proportion.C.size() && d < proportion.D.size() && proportion.C.get(c) == proportion.D.get(d));
-      case BD : return (b < proportion.B.size() && d < proportion.D.size() && proportion.B.get(b) == proportion.D.get(d));
+      case AB : return (a < proportion.A.size() && b < proportion.B.size() && proportion.A.get(a).equals(proportion.B.get(b)));
+      case AC : return (a < proportion.A.size() && c < proportion.C.size() && proportion.A.get(a).equals(proportion.C.get(c)));
+      case CD : return (c < proportion.C.size() && d < proportion.D.size() && proportion.C.get(c).equals(proportion.D.get(d)));
+      case BD : return (b < proportion.B.size() && d < proportion.D.size() && proportion.B.get(b).equals(proportion.D.get(d)));
       default : return false;
     }
   }
