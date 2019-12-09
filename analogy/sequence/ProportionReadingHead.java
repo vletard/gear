@@ -1,16 +1,15 @@
-package analogy.matrix;
+package analogy.sequence;
 
 import java.util.List;
 
-import analogy.Proportion;
-import analogy.matrix.Step;
+import analogy.sequence.Step;
 
 public class ProportionReadingHead<E>{
-  private final Proportion<E> proportion;
+  private final SequenceProportion<E> proportion;
   private final int a, b, c, d;
   private final List<Factor<E>> factors;
 
-  public ProportionReadingHead(Proportion<E> p){
+  public ProportionReadingHead(SequenceProportion<E> p){
     this.proportion = p;
     this.a = 0;
     this.b = 0;
@@ -123,13 +122,13 @@ public class ProportionReadingHead<E>{
   @Override
   public String toString(){
     String repr = "";
-    repr = repr + proportion.A.subList(0, a) + "|" + proportion.A.subList(a, proportion.A.size());
+    repr = repr + proportion.A.toList().subList(0, a) + "|" + proportion.A.toList().subList(a, proportion.A.size());
     repr = repr + " : \n";
-    repr = repr + proportion.B.subList(0, b) + "|" + proportion.B.subList(b, proportion.B.size());
+    repr = repr + proportion.B.toList().subList(0, b) + "|" + proportion.B.toList().subList(b, proportion.B.size());
     repr = repr + " :?: \n";
-    repr = repr + proportion.C.subList(0, c) + "|" + proportion.C.subList(c, proportion.C.size());
+    repr = repr + proportion.C.toList().subList(0, c) + "|" + proportion.C.toList().subList(c, proportion.C.size());
     repr = repr + " : \n";
-    repr = repr + proportion.D.subList(0, d) + "|" + proportion.D.subList(d, proportion.D.size());
+    repr = repr + proportion.D.toList().subList(0, d) + "|" + proportion.D.toList().subList(d, proportion.D.size());
     return repr;
   }
 

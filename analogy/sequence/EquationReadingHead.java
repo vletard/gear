@@ -1,11 +1,9 @@
-package analogy.matrix;
+package analogy.sequence;
 
 import java.util.List;
 
-import analogy.Equation;
-
 public class EquationReadingHead<E>{
-  private final Equation<E> equation;
+  private final SequenceEquation<E> equation;
   private final int a, b, c;
   private final List<Factor<E>> factors;
 
@@ -14,7 +12,7 @@ public class EquationReadingHead<E>{
     return Factorizations.toString(this.factors);
   }
 
-  public EquationReadingHead(Equation<E> p){
+  public EquationReadingHead(SequenceEquation<E> p){
     this.equation = p;
     this.a = 0;
     this.b = 0;

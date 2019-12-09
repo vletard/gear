@@ -1,4 +1,4 @@
-package analogy.matrix;
+package analogy.sequence;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import analogy.Element;
+import util.Sequence;
 
 /**
  * This tool class provides primitives for managing Factor lists.
@@ -85,18 +86,16 @@ public class Factorizations {
    * @param e The element to be extracted.
    * @return A list representing the concatenation of the sequence of the element.
    */
-  public static <E> List<E> extractElement(List<Factor<E>> factorization, Element e){
+  public static <E> Sequence<E> extractElement(List<Factor<E>> factorization, Element e){
     LinkedList<E> element = new LinkedList<E>();
-    Iterator<Factor<E>> it = factorization.iterator();
-    while (it.hasNext()) {
-      Factor<E> f = it.next();
+    for (Factor<E> f: factorization) {
       if ((f.isCrossed() && (e == Element.B || e == Element.D))
           || (!f.isCrossed() && (e == Element.A || e == Element.B)))
         element.addAll(f.getB());
       else
         element.addAll(f.getC());
     }
-    return element;
+    return new Sequence<E>(element);
   }
   
   /**
