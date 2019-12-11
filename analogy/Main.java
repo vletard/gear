@@ -1,6 +1,7 @@
 package analogy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -8,10 +9,11 @@ import java.util.Set;
 
 import analogy.sequence.Factor;
 import analogy.sequence.SequenceEquation;
-import analogy.sequence.SequenceProportion;
 import analogy.sequence.SequenceEquation.NoSolutionException;
+import analogy.sequence.SequenceProportion;
 import util.CharacterSequence;
 import util.Sequence;
+import util.Tuple;
 
 public class Main{
   public static List<Character> stringToCharList(String s){
@@ -40,5 +42,11 @@ public class Main{
       Entry<Sequence<Character>, Set<List<Factor<Character>>>> solution = it2.next();
       System.out.println(solution.getKey() + " (degree " + e.getBestDegree() + ") has " + solution.getValue().size() + " distinct alignments.");
     }
+    
+    Tuple<CharacterSequence> tA = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("AX")));
+    Tuple<CharacterSequence> tB = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("AY")));
+    Tuple<CharacterSequence> tC = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("BX")));
+    Tuple<CharacterSequence> tD = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("BY")));
+    System.out.println(new Proportion<Object>(tA, tB, tC, tD).isValid());
   }
 }

@@ -10,7 +10,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import analogy.Proportion;
-import analogy.sequence.*;
 import util.Sequence;
 
 /**
@@ -20,8 +19,7 @@ import util.Sequence;
  *
  * @param <E> Parametric type of the elements inside sequences.
  */
-public class SequenceProportion<E> implements Proportion<Sequence<E>>{
-  final public Sequence<E> A, B, C, D;
+public class SequenceProportion<E> extends Proportion<Sequence<E>>{
   private Boolean valid;
   private List<Factor<E>> factorization;
   
@@ -33,10 +31,7 @@ public class SequenceProportion<E> implements Proportion<Sequence<E>>{
   }
 
   public SequenceProportion(Sequence<E> a, Sequence<E> b, Sequence<E> c, Sequence<E> d){
-    this.A = a;
-    this.B = b;
-    this.C = c;
-    this.D = d;
+    super(a, b, c, d);
   }
   
   /**
