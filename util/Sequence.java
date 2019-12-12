@@ -39,7 +39,7 @@ public class Sequence<T> implements Iterable<T> {
       return true;
     if (obj == null)
       return false;
-    if (getClass() != obj.getClass())
+    if (!(obj instanceof Sequence))
       return false;
     Sequence other = (Sequence) obj;
     if (sequence == null) {
