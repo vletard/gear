@@ -28,4 +28,9 @@ public class Tuple<V> {
   public Object get(Object key) {
     return this.items.get(key);
   };
+  
+  @Override
+  public String toString() {
+    return this.items.toString();
+  }
 }
