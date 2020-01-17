@@ -1,4 +1,4 @@
-package analogy.matrix;
+package analogy.sequence;
 
 public enum Step{
   AB,
