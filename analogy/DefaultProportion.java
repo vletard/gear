@@ -7,11 +7,11 @@ import analogy.sequence.SequenceProportion;
 import util.Sequence;
 import util.Tuple;
 
-public class Proportion<T> {
+public class DefaultProportion<T> {
   final public T A, B, C, D;
   private Boolean valid;
   
-  public Proportion(T a, T b, T c, T d) {
+  public DefaultProportion(T a, T b, T c, T d) {
     this.A = a;
     this.B = b;
     this.C = c;
@@ -84,13 +84,12 @@ public class Proportion<T> {
     keys.addAll(D.keySet());
     
     for (Object key: keys) {
-      if (!new Proportion<Object>(A.get(key), B.get(key), C.get(key), D.get(key)).isValid())
+      if (!new DefaultProportion<Object>(A.get(key), B.get(key), C.get(key), D.get(key)).isValid())
         return false;
     }
     return true;
   }
 
-  @SuppressWarnings("unchecked")
   private boolean checkSequence() {
     if (!(this.A instanceof Sequence && this.B instanceof Sequence && this.C instanceof Sequence && this.D instanceof Sequence))
       return false;

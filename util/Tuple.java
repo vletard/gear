@@ -15,7 +15,7 @@ public class Tuple<V> {
     HashMap<Integer, V> items = new HashMap<Integer, V>();
     int i = 0;
     for (V item: c) {
-      items.put(new Integer(i), item);
+      items.put(i, item);
       i++;
     }
     this.items = items;
@@ -25,7 +25,7 @@ public class Tuple<V> {
     return this.items.keySet();
   }
 
-  public Object get(Object key) {
+  public V get(Object key) {
     return this.items.get(key);
   };
   

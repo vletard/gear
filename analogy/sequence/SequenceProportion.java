@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import analogy.Proportion;
+import analogy.DefaultProportion;
 import util.Sequence;
 
 /**
@@ -19,7 +19,7 @@ import util.Sequence;
  *
  * @param <E> Parametric type of the elements inside sequences.
  */
-public class SequenceProportion<E> extends Proportion<Sequence<E>>{
+public class SequenceProportion<E> extends DefaultProportion<Sequence<E>>{
   private Boolean valid;
   private List<Factor<E>> factorization;
   

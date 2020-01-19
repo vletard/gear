@@ -9,7 +9,6 @@ import java.util.Set;
 
 import analogy.sequence.Factor;
 import analogy.sequence.SequenceEquation;
-import analogy.sequence.SequenceEquation.NoSolutionException;
 import analogy.sequence.SequenceProportion;
 import util.CharacterSequence;
 import util.Sequence;
@@ -24,13 +23,13 @@ public class Main{
     return l;
   }
   
-  public static void main(String[] args) throws NoSolutionException{
+  public static void main(String[] args) throws NoSolutionException {
     Sequence<Character> A = new CharacterSequence("baa");
     Sequence<Character> B = new CharacterSequence("aba");
     Sequence<Character> C = new CharacterSequence("aab");
     Sequence<Character> D = new CharacterSequence("aab");
-    Proportion<Sequence<Character>> p = new SequenceProportion<Character>(A, B, C, D);
-    SequenceEquation<Character> e = new SequenceEquation<Character>(A, B, C);
+    DefaultProportion<Sequence<Character>> p = new SequenceProportion<Character>(A, B, C, D);
+    AbstractEquation<Sequence<Character>, SolutionMap<Character>> e = new SequenceEquation<Character>(A, B, C);
     
     System.out.println(p);
     System.out.println(p.isValid());
@@ -43,10 +42,14 @@ public class Main{
       System.out.println(solution.getKey() + " (degree " + e.getBestDegree() + ") has " + solution.getValue().size() + " distinct alignments.");
     }
     
-    Tuple<CharacterSequence> tA = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("AX")));
-    Tuple<CharacterSequence> tB = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("AY")));
-    Tuple<CharacterSequence> tC = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("BX")));
-    Tuple<CharacterSequence> tD = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("BY")));
-    System.out.println(new Proportion<Object>(tA, tB, tC, tD).isValid());
+    Tuple<CharacterSequence> tA = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("AKCKE")));
+    Tuple<CharacterSequence> tB = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("BKCKF")));
+    Tuple<CharacterSequence> tC = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("AKDKE")));
+    Tuple<CharacterSequence> tD = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("BKDKF")));
+    System.out.println(new DefaultProportion<Object>(tA, tB, tC, tD).isValid());
+    
+    for (Object o: new DefaultEquation(tA, tB, tC).getBestSolutions()) {
+      System.out.println(o);
+    }
   }
 }
