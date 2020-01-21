@@ -1,0 +1,21 @@
+<project>
+
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="build/jar"/>
+        <jar destfile="build/jar/analogy.jar" basedir="build/classes"/>
+    </target>
+
+    <target name="run" depends="compile">
+        <java classname="analogy.Main" classpath="build/classes"/>
+    </target>
+
+</project>
