@@ -10,7 +10,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import analogy.Element;
-import analogy.Equation;
+import analogy.SolutionMap;
+import analogy.AbstractEquation;
 import util.Sequence;
 
 /**
@@ -20,70 +21,14 @@ import util.Sequence;
  *
  * @param <E> The items composing the sequences of the analogical Equation.
  */
-public class SequenceEquation<E> implements Equation<Sequence<E>>{
-  /**
-   * This map associates each sequence representing a solution to the set of factorizations
-   * that have been found giving that solution.
-   * @author Vincent Letard
-   *
-   * @param <T> Type of objects in the sequences and factors.
-   */
-  public class SolutionMap<T> extends HashMap<Sequence<T>, Set<List<Factor<T>>>>{
-    private static final long serialVersionUID = -2236281191394013633L;
-  }
+public class SequenceEquation<E> extends AbstractEquation<Sequence<E>, SolutionMap<E>>{
 
-  /**
-   * This is an exception to be thrown when trying to perform an operation on a solution
-   * but no solution could be found.
-   * @author Vincent Letard
-   *
-   */
-  public static class NoSolutionException extends Exception{
-    private static final long serialVersionUID = 5899880279685014860L;
-    public NoSolutionException(String string) {
-      super(string);
-    }
-  }
-
-  final public Sequence<E> A, B, C;
-  private SortedMap<Integer, SolutionMap<E>> solutions;
+  private TreeMap<Integer, SolutionMap<E>> solutions;
   private boolean bestSolutionsProcessed;
 
   public SequenceEquation(Sequence<E> a, Sequence<E> b, Sequence<E> c){
-    this.A = a;
-    this.B = b;
-    this.C = c;
-    this.solutions = null;
+    super(a, b, c);
     this.bestSolutionsProcessed = false;
-  }
-
-  /**
-   * Retrieves the map of all the solutions of lowest degree of this equation.
-   * Note that if solveBest was not called prior to getBestSolutions, it will be called automatically.
-   * @return a {@link SolutionMap} of the solutions of best degree. 
-   */
-  public SolutionMap<E> getBestSolutions(){
-    if (this.solutions == null)
-      this.solveBest();
-    if (this.solutions.isEmpty())
-      return new SolutionMap<E>();
-    else
-      return this.solutions.get(this.solutions.firstKey());
-  }
-
-  /**
-   * Returns the degree of the best solution found.
-   * Note that if solveBest was not called prior to getBestSolutions, it will be called automatically.
-   * @return the best degree.
-   * @throws NoSolutionException if a degree cannot be obtained because the equation has no solution.
-   */
-  public int getBestDegree() throws NoSolutionException {
-    if (this.solutions == null)
-      this.solveBest();
-    if (this.solutions.isEmpty())
-      throw new NoSolutionException("Cannot determine the degree of a non existent solution.");
-    else
-      return this.solutions.get(this.solutions.firstKey()).values().iterator().next().iterator().next().size();
   }
 
   /**
@@ -118,6 +63,7 @@ public class SequenceEquation<E> implements Equation<Sequence<E>>{
    * - every path has been explored and failed
    * - a path gave a solution of degree d, and every other path has been explored until no more solution of degree d can be found
    */
+  @Override
   public void solveBest(){
     if (this.bestSolutionsProcessed)
       return;
@@ -174,6 +120,11 @@ public class SequenceEquation<E> implements Equation<Sequence<E>>{
       }
     }
     this.bestSolutionsProcessed = true;
+  }
+
+  @Override
+  protected TreeMap<Integer, SolutionMap<E>> getSolutions() {
+    return this.solutions;
   }
 
   @Override
