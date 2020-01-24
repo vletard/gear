@@ -11,6 +11,7 @@ import analogy.sequence.Factor;
 import analogy.sequence.SequenceEquation;
 import analogy.sequence.SequenceProportion;
 import util.CharacterSequence;
+import util.RecursivePrintable;
 import util.Sequence;
 import util.Tuple;
 
@@ -49,7 +50,10 @@ public class Main{
     System.out.println(new DefaultProportion<Object>(tA, tB, tC, tD).isValid());
     
     for (Object o: new DefaultEquation(tA, tB, tC).getBestSolutions()) {
-      System.out.println(o);
+      if (o instanceof RecursivePrintable)
+        System.out.println(((RecursivePrintable)o).prettyPrint(0));
+      else
+        System.out.println(o);
     }
   }
 }
