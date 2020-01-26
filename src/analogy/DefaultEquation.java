@@ -22,10 +22,16 @@ public class DefaultEquation extends AbstractEquation<Object, SolutionBag<Object
    * If success, the solution added is considered of degree 1.
    */
   private void solveAtomic(){
-    if (this.A.equals(this.B))
+    if (this.A == this.B)
       solutions.put(1, new SolutionSingleton(this.C));
-    else if (this.A.equals(this.C))
+    else if (this.A == this.C)
       solutions.put(1, new SolutionSingleton(this.B));
+    else if (this.A != null) {
+      if (this.A.equals(this.B))
+        solutions.put(1, new SolutionSingleton(this.C));
+      else if (this.A.equals(this.C))
+        solutions.put(1, new SolutionSingleton(this.B));
+    }
   }
 
   private void solveBestTuple() {
@@ -62,7 +68,7 @@ public class DefaultEquation extends AbstractEquation<Object, SolutionBag<Object
     Sequence<Object> A = (Sequence<Object>) this.A;
     Sequence<Object> B = (Sequence<Object>) this.B;
     Sequence<Object> C = (Sequence<Object>) this.C;
-    
+
     SequenceEquation<Object> eqn = new SequenceEquation<Object>(A, B, C);
     try {
       this.solutions.put(eqn.getBestDegree(), eqn.getBestSolutions().genericCast());
