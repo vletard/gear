@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class Tuple<V> implements RecursivePrintable {
   private final HashMap<?, V> items;
@@ -74,5 +73,31 @@ public class Tuple<V> implements RecursivePrintable {
     output = output.substring(0, output.length()-2) + "\n" + writeOffset(offset) + "}";
     
     return output;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((items == null) ? 0 : items.hashCode());
+    return result;
+  }
+
+  @SuppressWarnings("rawtypes")
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Tuple other = (Tuple) obj;
+    if (items == null) {
+      if (other.items != null)
+        return false;
+    } else if (!items.equals(other.items))
+      return false;
+    return true;
   }
 }
