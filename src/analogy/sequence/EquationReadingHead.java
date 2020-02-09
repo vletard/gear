@@ -21,11 +21,11 @@ public class EquationReadingHead<E>{
   }
 
   private E getB(){
-    return this.equation.B.get(this.b);
+    return this.equation.b.get(this.b);
   }
 
   private E getC(){
-    return this.equation.C.get(this.c);
+    return this.equation.c.get(this.c);
   }
 
   private EquationReadingHead(EquationReadingHead<E> eqn, Step step) throws ImpossibleStepException{
@@ -64,10 +64,10 @@ public class EquationReadingHead<E>{
    */
   public boolean canStep(Step step){
     switch (step){
-    case AB : return (a < equation.A.size() && b < equation.B.size() && equation.A.get(a).equals(equation.B.get(b)));
-    case AC : return (a < equation.A.size() && c < equation.C.size() && equation.A.get(a).equals(equation.C.get(c)));
-    case CD : return (c < equation.C.size());
-    case BD : return (b < equation.B.size());
+    case AB : return (a < equation.a.size() && b < equation.b.size() && equation.a.get(a).equals(equation.b.get(b)));
+    case AC : return (a < equation.a.size() && c < equation.c.size() && equation.a.get(a).equals(equation.c.get(c)));
+    case CD : return (c < equation.c.size());
+    case BD : return (b < equation.b.size());
     default : return false;
     }
   }
@@ -79,7 +79,7 @@ public class EquationReadingHead<E>{
    * @return true if the progress in the matrix has finished.
    */
   public boolean isFinished(){
-    return (a == equation.A.size() && b == equation.B.size() && c == equation.C.size());
+    return (a == equation.a.size() && b == equation.b.size() && c == equation.c.size());
   }
 
   /**

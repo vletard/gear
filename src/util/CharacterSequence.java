@@ -3,6 +3,8 @@ package util;
 import java.util.ArrayList;
 import java.util.List;
 
+import analogy.sequence.Sequence;
+
 public class CharacterSequence extends Sequence<Character>{
   public CharacterSequence(String s){
     super(CharacterSequence.listOfString(s));

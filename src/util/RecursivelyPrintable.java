@@ -1,5 +1,5 @@
 package util;
 
-public interface RecursivePrintable {
+public interface RecursivelyPrintable {
   public String prettyPrint(int offset);
 }

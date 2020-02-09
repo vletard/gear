@@ -1,26 +1,19 @@
-package util;
+package analogy.tuple;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class Tuple<V> implements RecursivePrintable {
-  private final HashMap<?, V> items;
-  
-  public Tuple(Map<?, V> m) {
-    this.items = new HashMap<Object, V>(m);
-  };
+import util.RecursivelyPrintable;
 
-  public Tuple(Collection<V> c) {
-    HashMap<Integer, V> items = new HashMap<Integer, V>();
-    int i = 0;
-    for (V item: c) {
-      items.put(i, item);
-      i++;
-    }
-    this.items = items;
-  }
+public class Tuple<V> {
+  private final Map<Object, V> items;
+  
+  public Tuple(Map<Object, V> m) {
+    this.items = Collections.unmodifiableMap(new HashMap<Object, V>(m));
+  };
 
   public Collection<? extends Object> keySet() {
     return this.items.keySet();
@@ -29,11 +22,6 @@ public class Tuple<V> implements RecursivePrintable {
   public V get(Object key) {
     return this.items.get(key);
   };
-  
-  @Override
-  public String toString() {
-    return this.items.toString();
-  }
   
   private static String writeOffset(int offset) {
     String s = "";
@@ -47,9 +35,9 @@ public class Tuple<V> implements RecursivePrintable {
     HashSet<Object> recursiveValues = new HashSet<Object>();
     HashSet<Object> complexKeys = new HashSet<Object>();
     
-    for (Object k: this.items.keySet()) {
-      V v = this.items.get(k);
-      if (v instanceof RecursivePrintable)
+    for (Object k: this.keySet()) {
+      V v = this.get(k);
+      if (v instanceof RecursivelyPrintable)
         recursiveValues.add(k);
       else if (!(k instanceof String || k instanceof Integer || k instanceof Boolean
           || k instanceof Double || k instanceof Float || k instanceof Character))
@@ -62,17 +50,22 @@ public class Tuple<V> implements RecursivePrintable {
     
     output += "{ \n";
     for (Object k: simpleKeys)
-      output += writeOffset(offset+1) + k + "=" + this.items.get(k) + ",\n";
+      output += writeOffset(offset+1) + k + "=" + this.get(k) + ",\n";
 
     for (Object k: recursiveValues)
-      output += writeOffset(offset+1) + k + "=" + ((RecursivePrintable)this.items.get(k)).prettyPrint(offset+1) + ",\n";
+      output += writeOffset(offset+1) + k + "=" + ((RecursivelyPrintable)this.get(k)).prettyPrint(offset+1) + ",\n";
     
     for (Object k: complexKeys)
-      output += writeOffset(offset+1) + k + "=" + this.items.get(k) + ",\n";
+      output += writeOffset(offset+1) + k + "=" + this.get(k) + ",\n";
     
     output = output.substring(0, output.length()-2) + "\n" + writeOffset(offset) + "}";
     
     return output;
+  }
+  
+  @Override
+  public String toString() {
+    return this.items.toString();
   }
 
   @Override
@@ -100,4 +93,5 @@ public class Tuple<V> implements RecursivePrintable {
       return false;
     return true;
   }
+  
 }

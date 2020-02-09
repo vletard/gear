@@ -1,4 +1,4 @@
-package util;
+package analogy.sequence;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -3,9 +3,10 @@ package analogy;
 import java.util.HashSet;
 import java.util.Set;
 
+import analogy.sequence.Sequence;
 import analogy.sequence.SequenceProportion;
-import util.Sequence;
-import util.Tuple;
+import analogy.set.ImmutableSet;
+import analogy.tuple.Tuple;
 
 public class DefaultProportion<T> {
   final public T A, B, C, D;
@@ -28,7 +29,7 @@ public class DefaultProportion<T> {
     try {
       return this.checkAtomic();
     } catch (NonAtomicException e) {
-      return this.checkTuple() || this.checkSequence();
+      return this.checkSet() || this.checkTuple() || this.checkSequence();
     }
   }
 
@@ -68,14 +69,36 @@ public class DefaultProportion<T> {
       return false;
   }
   
+  private boolean checkSet() {
+    if (!(this.A instanceof ImmutableSet && this.B instanceof ImmutableSet && this.C instanceof ImmutableSet && this.D instanceof ImmutableSet))
+      return false;
+    
+    ImmutableSet<Object> a = (ImmutableSet<Object>) this.A;
+    ImmutableSet<Object> b = (ImmutableSet<Object>) this.B;
+    ImmutableSet<Object> c = (ImmutableSet<Object>) this.C;
+    ImmutableSet<Object> d = (ImmutableSet<Object>) this.D;
+    
+    HashSet<Object> union = new HashSet<Object>();
+    union.addAll(a.asSet());
+    union.addAll(b.asSet());
+    union.addAll(c.asSet());
+    union.addAll(d.asSet());
+    
+    for (Object key: union) {
+      if (!new DefaultProportion<Boolean>(a.contains(key), b.contains(key), c.contains(key), d.contains(key)).isValid())
+        return false; // if any of the items does not respect analogical constraints over the 4 sets, the proportion is invalid
+    }
+    return true;
+  }
+  
   private boolean checkTuple() {
     if (!(this.A instanceof Tuple && this.B instanceof Tuple && this.C instanceof Tuple && this.D instanceof Tuple))
       return false;
     
-    Tuple<?> A = (Tuple<?>) this.A;
-    Tuple<?> B = (Tuple<?>) this.B;
-    Tuple<?> C = (Tuple<?>) this.C;
-    Tuple<?> D = (Tuple<?>) this.D;
+    Tuple<Object> A = (Tuple<Object>) this.A;
+    Tuple<Object> B = (Tuple<Object>) this.B;
+    Tuple<Object> C = (Tuple<Object>) this.C;
+    Tuple<Object> D = (Tuple<Object>) this.D;
     
     Set<Object> keys = new HashSet<Object>();
     keys.addAll(A.keySet());
@@ -85,7 +108,7 @@ public class DefaultProportion<T> {
     
     for (Object key: keys) {
       if (!new DefaultProportion<Object>(A.get(key), B.get(key), C.get(key), D.get(key)).isValid())
-        return false;
+        return false; // if any of the entries does not respect analogical constraints over the 4 tuples, the proportion is invalid
     }
     return true;
   }

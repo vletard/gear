@@ -10,7 +10,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import analogy.DefaultProportion;
-import util.Sequence;
 
 /**
  * This class represents an analogical proportion. It can be initialized with 4 sequence elements

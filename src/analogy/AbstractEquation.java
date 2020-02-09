@@ -1,54 +1,58 @@
 package analogy;
 
-import java.util.TreeMap;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-public abstract class AbstractEquation<E, Bag extends SolutionBag<E>> {
+public abstract class AbstractEquation<T, S extends Solution<? extends T>> implements Iterable<S> {
 
-  public final E A, B, C;
+  public final T a, b, c;
 
-  public AbstractEquation(E a, E b, E c){
-    this.A = a;
-    this.B = b;
-    this.C = c;
+  public AbstractEquation(T a, T b, T c){
+    this.a = a;
+    this.b = b;
+    this.c = c;
   }
-
-  protected abstract TreeMap<Integer, Bag> getSolutions();
   
-  /**
-   * Returns the degree of the best solution found.
-   * Note that if solveBest was not called prior to getBestSolutions, it will be called automatically.
-   * @return the best degree.
-   * @throws NoSolutionException if a degree cannot be obtained because the equation has no solution.
-   */
-  public int getBestDegree() throws NoSolutionException {
-    if (this.getSolutions() == null)
-      this.solveBest();
-    if (this.getSolutions().isEmpty())
-      throw new NoSolutionException("Cannot determine the degree of a non existent solution.");
-    else
-      return this.getSolutions().firstKey();
-  }
+  public final Iterable<S> nBestDegreeSolution(int degreeCounter) {
+    return new Iterable<S>() {
 
-  /**
-   * Retrieves the map of all the solutions of lowest degree of this equation.
-   * Note that if solveBest was not called prior to getBestSolutions, it will be called automatically.
-   * @return a {@link SolutionMap} of the solutions of best degree. 
-   * @throws NoSolutionException 
-   */
-  public Bag getBestSolutions() throws NoSolutionException {
-    if (this.getSolutions() == null)
-      this.solveBest();
-    if (this.getSolutions().isEmpty())
-      throw new NoSolutionException();
-    else
-      return this.getSolutions().get(this.getSolutions().firstKey());
-  }
+      @Override
+      public Iterator<S> iterator() {
+        return new Iterator<S>() {
+          private final Iterator<S> it = AbstractEquation.this.iterator();
+          private int nBestCounter = 0;
+          private int currentDegree = 0;
+          private S currentSolution = null;
 
-  /**
-   * Attempts to solve this Equation until all the best solutions have been found.
-   * More precisely, the greedy algorithm goes on until one of those two conditions occurs:
-   * - every path has been explored and failed
-   * - a path gave a solution of degree d, and every other path has been explored until no more solution of degree d can be found
-   */
-  public abstract void solveBest();
+          @Override
+          public boolean hasNext() {
+            if (this.currentSolution == null && this.it.hasNext()) {
+              S s = this.it.next();
+              int degree = s.getDegree();
+              if (degree > this.currentDegree) {
+                this.nBestCounter ++;
+                this.currentDegree = degree;
+              }
+              this.currentSolution = s;
+            }
+            if (this.nBestCounter > degreeCounter)
+              return false;
+            else 
+              return this.currentSolution != null;
+          }
+
+          @Override
+          public S next() {
+            if (this.hasNext()) {
+              S s = this.currentSolution;
+              this.currentSolution = null;
+              return s;
+            }
+            else
+              throw new NoSuchElementException();
+          }
+        };
+      }
+    };
+  }
 }

@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import analogy.Element;
-import util.Sequence;
 
 /**
  * This tool class provides primitives for managing Factor lists.

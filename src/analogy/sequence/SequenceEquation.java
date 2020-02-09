@@ -1,34 +1,30 @@
 package analogy.sequence;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import analogy.Element;
-import analogy.SolutionMap;
 import analogy.AbstractEquation;
-import util.Sequence;
+import analogy.Element;
 
 /**
- * This class represents an analogical equation.
- * It offers primitives to compute its solutions and stores them.
+ * This class represents an analogical equation on sequences.
+ * Its solution are provided using the specialized class {@link SequenceSolution}.
  * @author Vincent Letard
  *
  * @param <E> The items composing the sequences of the analogical Equation.
  */
-public class SequenceEquation<E> extends AbstractEquation<Sequence<E>, SolutionMap<E>>{
-
-  private TreeMap<Integer, SolutionMap<E>> solutions;
-  private boolean bestSolutionsProcessed;
+public class SequenceEquation<E> extends AbstractEquation<Sequence<E>, SequenceSolution<E>>{
 
   public SequenceEquation(Sequence<E> a, Sequence<E> b, Sequence<E> c){
     super(a, b, c);
-    this.bestSolutionsProcessed = false;
   }
 
   /**
@@ -37,17 +33,17 @@ public class SequenceEquation<E> extends AbstractEquation<Sequence<E>, SolutionM
    * @return false if the proportion between the sequences is impossible
    */
   private boolean checkCounts() {
-    if (this.A.size() - this.B.size() - this.C.size() > 0)
+    if (this.a.size() - this.b.size() - this.c.size() > 0)
       return false;
 
     Map<E, Integer> counts = new HashMap<E, Integer>();
 
-    for (int i=0; i < this.A.size(); i++)
-      counts.put(this.A.get(i), counts.getOrDefault(this.A.get(i), 0) +1);
-    for (int i=0; i < this.B.size(); i++)
-      counts.put(this.B.get(i), counts.getOrDefault(this.B.get(i), 0) -1);
-    for (int i=0; i < this.C.size(); i++)
-      counts.put(this.C.get(i), counts.getOrDefault(this.C.get(i), 0) -1);
+    for (int i=0; i < this.a.size(); i++)
+      counts.put(this.a.get(i), counts.getOrDefault(this.a.get(i), 0) +1);
+    for (int i=0; i < this.b.size(); i++)
+      counts.put(this.b.get(i), counts.getOrDefault(this.b.get(i), 0) -1);
+    for (int i=0; i < this.c.size(); i++)
+      counts.put(this.c.get(i), counts.getOrDefault(this.c.get(i), 0) -1);
 
     Iterator<Integer> it = counts.values().iterator();
     while (it.hasNext())
@@ -57,83 +53,80 @@ public class SequenceEquation<E> extends AbstractEquation<Sequence<E>, SolutionM
     return true;
   }
 
-  /**
-   * Attempts to solve this Equation until all the best solutions have been found.
-   * More precisely, the greedy algorithm goes on until one of those two conditions occurs:
-   * - every path has been explored and failed
-   * - a path gave a solution of degree d, and every other path has been explored until no more solution of degree d can be found
-   */
   @Override
-  public void solveBest(){
-    if (this.bestSolutionsProcessed)
-      return;
+  public Iterator<SequenceSolution<E>> iterator() {
+    if (! SequenceEquation.this.checkCounts())
+      return Collections.emptyIterator();
 
-    this.solutions = new TreeMap<Integer, SolutionMap<E>>();
-
-    if (! this.checkCounts())
-      return;
-
-    SortedMap<Integer, Set<EquationReadingHead<E>>> readingRegister = new TreeMap<Integer, Set<EquationReadingHead<E>>>();
-    {
-      EquationReadingHead<E> head = new EquationReadingHead<E>(this);
-      Set<EquationReadingHead<E>> s = new HashSet<EquationReadingHead<E>>();
-      s.add(head);
-      readingRegister.put(head.getCurrentDegree(), s);
-    }
-
-    /*
-     * Note that the matrix searching loop below continues on until there is no partial solution
-     * which current degree is lower or equal than the best found solution so far.
-     * This implies that the function won't stop until *all* the best solutions have been found.
-     * Usually though, the best degree solution is unique.
-     */
-    while (!readingRegister.isEmpty() && 
-        (this.solutions.isEmpty() || readingRegister.firstKey() <= this.solutions.firstKey())){
-
-      int currentDegree = readingRegister.firstKey();
-      Set<EquationReadingHead<E>> s = readingRegister.get(currentDegree);
-      EquationReadingHead<E> currentHead = s.iterator().next();
-      s.remove(currentHead);
-      if (s.isEmpty())
-        readingRegister.remove(currentDegree);
-
-      if (currentHead.isFinished()) {
-        List<Factor<E>> factorList = currentHead.getFactors();
-        Sequence<E> sequence = Factorizations.extractElement(factorList, Element.D);
-        this.solutions.putIfAbsent(currentDegree, new SolutionMap<E>());
-        this.solutions.get(currentDegree).putIfAbsent(sequence, new HashSet<List<Factor<E>>>());
-        this.solutions.get(currentDegree).get(sequence).add(factorList);
-      }
-      else{
-        try{
-          for (Step step : new Step[]{Step.AB, Step.AC, Step.CD, Step.BD}) {
-            if (currentHead.canStep(step)){
-              EquationReadingHead<E> newHead = currentHead.makeStep(step, true);
-              int newDegree = newHead.getCurrentDegree();
-              readingRegister.putIfAbsent(newDegree, new HashSet<EquationReadingHead<E>>());
-              readingRegister.get(newDegree).add(newHead);
+    else
+      return new Iterator<SequenceSolution<E>>() {
+        private final SortedMap<Integer, Set<EquationReadingHead<E>>> readingRegister = new TreeMap<Integer, Set<EquationReadingHead<E>>>();
+        private SequenceSolution<E> nextElement = null;
+  
+        {
+          EquationReadingHead<E> head = new EquationReadingHead<E>(SequenceEquation.this);
+          Set<EquationReadingHead<E>> s = new HashSet<EquationReadingHead<E>>();
+          s.add(head);
+          this.readingRegister.put(head.getCurrentDegree(), s);
+        }
+  
+        @Override
+        public boolean hasNext() {
+          while (this.nextElement == null && !this.readingRegister.isEmpty()) {
+            int currentDegree = readingRegister.firstKey();
+            Set<EquationReadingHead<E>> s = readingRegister.get(currentDegree);
+            EquationReadingHead<E> currentHead = s.iterator().next();
+            s.remove(currentHead);
+            if (s.isEmpty())
+              readingRegister.remove(currentDegree);
+  
+            if (currentHead.isFinished()) {
+              List<Factor<E>> factorList = currentHead.getFactors();
+              Sequence<E> sequence = Factorizations.extractElement(factorList, Element.D);
+              this.nextElement = new SequenceSolution<E>(sequence, currentDegree, factorList);
+            }
+            else{
+              try{
+                for (Step step : new Step[]{Step.AB, Step.AC, Step.CD, Step.BD}) {
+                  if (currentHead.canStep(step)){
+                    EquationReadingHead<E> newHead = currentHead.makeStep(step, true);
+                    int newDegree = newHead.getCurrentDegree();
+                    readingRegister.putIfAbsent(newDegree, new HashSet<EquationReadingHead<E>>());
+                    readingRegister.get(newDegree).add(newHead);
+                  }
+                }
+              } catch(ImpossibleStepException e) {
+                throw new RuntimeException(e);
+              }
             }
           }
-        } catch(ImpossibleStepException e) {
-          throw new RuntimeException(e);
+  
+          if (this.nextElement == null)
+            return false;
+          else
+            return true;
         }
-      }
-    }
-    this.bestSolutionsProcessed = true;
-  }
-
-  @Override
-  protected TreeMap<Integer, SolutionMap<E>> getSolutions() {
-    return this.solutions;
+  
+        @Override
+        public SequenceSolution<E> next() {
+          if (this.hasNext()) {
+            SequenceSolution<E> next = this.nextElement;
+            this.nextElement = null;
+            return next;
+          }
+          else
+            throw new NoSuchElementException();
+        }
+    };
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((A == null) ? 0 : A.hashCode());
-    result = prime * result + ((B == null) ? 0 : B.hashCode());
-    result = prime * result + ((C == null) ? 0 : C.hashCode());
+    result = prime * result + ((a == null) ? 0 : a.hashCode());
+    result = prime * result + ((b == null) ? 0 : b.hashCode());
+    result = prime * result + ((c == null) ? 0 : c.hashCode());
     return result;
   }
 
@@ -147,20 +140,20 @@ public class SequenceEquation<E> extends AbstractEquation<Sequence<E>, SolutionM
     if (getClass() != obj.getClass())
       return false;
     SequenceEquation other = (SequenceEquation) obj;
-    if (A == null) {
-      if (other.A != null)
+    if (a == null) {
+      if (other.a != null)
         return false;
-    } else if (!A.equals(other.A))
+    } else if (!a.equals(other.a))
       return false;
-    if (B == null) {
-      if (other.B != null)
+    if (b == null) {
+      if (other.b != null)
         return false;
-    } else if (!B.equals(other.B))
+    } else if (!b.equals(other.b))
       return false;
-    if (C == null) {
-      if (other.C != null)
+    if (c == null) {
+      if (other.c != null)
         return false;
-    } else if (!C.equals(other.C))
+    } else if (!c.equals(other.c))
       return false;
     return true;
   }

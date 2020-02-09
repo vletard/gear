@@ -1,59 +1,71 @@
 package analogy;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 
-import analogy.sequence.Factor;
+import analogy.sequence.Sequence;
 import analogy.sequence.SequenceEquation;
 import analogy.sequence.SequenceProportion;
+import analogy.sequence.SequenceSolution;
+import analogy.set.ImmutableSet;
+import analogy.set.SetEquation;
+import analogy.tuple.Tuple;
+import analogy.tuple.TupleEquation;
+import analogy.tuple.TupleSolution;
 import util.CharacterSequence;
-import util.RecursivePrintable;
-import util.Sequence;
-import util.Tuple;
 
 public class Main{
-  public static List<Character> stringToCharList(String s){
-    List<Character> l = new ArrayList<Character>();
-    for (int i = 0; i < s.length(); i++){
-      l.add(s.charAt(i));
-    }
-    return l;
+  private static <V> Tuple<V> singletonTuple(V item){
+    HashMap<Object, V> m = new HashMap<Object, V>();
+    m.put(0, item);
+    return new Tuple<V>(m);
   }
   
   public static void main(String[] args) throws NoSolutionException {
+    String equation;
+    
     Sequence<Character> A = new CharacterSequence("baa");
     Sequence<Character> B = new CharacterSequence("aba");
     Sequence<Character> C = new CharacterSequence("aab");
     Sequence<Character> D = new CharacterSequence("aab");
-    DefaultProportion<Sequence<Character>> p = new SequenceProportion<Character>(A, B, C, D);
-    AbstractEquation<Sequence<Character>, SolutionMap<Character>> e = new SequenceEquation<Character>(A, B, C);
+    SequenceEquation<Character> e = new SequenceEquation<Character>(A, B, C);
     
-    System.out.println(p);
-    System.out.println(p.isValid());
-    System.out.println(p);
+    assert(new SequenceProportion<Character>(A, B, C, D).isValid());
 
-    e.solveBest();
-    Iterator<Entry<Sequence<Character>, Set<List<Factor<Character>>>>> it2 = e.getBestSolutions().entrySet().iterator();
-    while (it2.hasNext()) {
-      Entry<Sequence<Character>, Set<List<Factor<Character>>>> solution = it2.next();
-      System.out.println(solution.getKey() + " (degree " + e.getBestDegree() + ") has " + solution.getValue().size() + " distinct alignments.");
+    equation = A + " : " + B + " :: " + C + " : ";
+    boolean degreePrintedOut = false;
+    for (SequenceSolution<Character> s:e.nBestDegreeSolution(1)) {
+      if (!degreePrintedOut) {
+        System.out.println("Degree " + s.getDegree() + ":");
+        degreePrintedOut = true;
+      }
+      System.out.println(equation + s.getContent());
+//      System.out.println(Factorizations.toString(s.getFactorization()));
     }
+    System.out.println();
     
-    Tuple<CharacterSequence> tA = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("AKCKE")));
-    Tuple<CharacterSequence> tB = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("BKCKF")));
-    Tuple<CharacterSequence> tC = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("AKDKE")));
-    Tuple<CharacterSequence> tD = new Tuple<CharacterSequence>(Collections.singleton(new CharacterSequence("BKDKF")));
-    System.out.println(new DefaultProportion<Object>(tA, tB, tC, tD).isValid());
+    Tuple<CharacterSequence> tA = singletonTuple(new CharacterSequence("AKCKE"));
+    Tuple<CharacterSequence> tB = singletonTuple(new CharacterSequence("BKCKF"));
+    Tuple<CharacterSequence> tC = singletonTuple(new CharacterSequence("AKDKE"));
+    Tuple<CharacterSequence> tD = singletonTuple(new CharacterSequence("BKDKF"));
+    assert(new DefaultProportion<Object>(tA, tB, tC, tD).isValid());
     
-    for (Object o: new DefaultEquation(tA, tB, tC).getBestSolutions()) {
-      if (o instanceof RecursivePrintable)
-        System.out.println(((RecursivePrintable)o).prettyPrint(0));
-      else
-        System.out.println(o);
+    equation = tA + " : " + tB + " :: " + tC + " : ";
+    for (TupleSolution<CharacterSequence> s: new TupleEquation<CharacterSequence>(tA, tB, tC)) {
+      System.out.println(equation + s.getContent());
     }
+    System.out.println();
+    
+    ImmutableSet<Integer> sA = new ImmutableSet<Integer>(new HashSet<Integer>(Arrays.asList(1, 2)));
+    ImmutableSet<Integer> sB = new ImmutableSet<Integer>(new HashSet<Integer>(Arrays.asList(3, 1, 5)));
+    ImmutableSet<Integer> sC = new ImmutableSet<Integer>(new HashSet<Integer>(Arrays.asList(2, 0, 4)));
+    ImmutableSet<Integer> sD = new ImmutableSet<Integer>(new HashSet<Integer>(Arrays.asList(4, 0, 3, 5)));
+    
+    assert(new DefaultProportion<Object>(sA, sB, sC, sD).isValid());
+    
+    equation = sA + " : " + sB + " :: " + sC + " : ";
+    for (Solution<ImmutableSet<Integer>> s: new SetEquation<Integer>(sA, sB, sC))
+      System.out.println(equation + s.getContent());
   }
 }
