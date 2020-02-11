@@ -11,7 +11,7 @@ import io.github.vletard.analogy.util.RecursivelyPrintable;
 public class Tuple<V> {
   private final Map<Object, V> items;
   
-  public Tuple(Map<Object, V> m) {
+  public Tuple(Map<?, ? extends V> m) {
     this.items = Collections.unmodifiableMap(new HashMap<Object, V>(m));
   };
 
