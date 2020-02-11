@@ -1,0 +1,70 @@
+package io.github.vletard.analogy;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import io.github.vletard.analogy.sequence.Sequence;
+import io.github.vletard.analogy.sequence.SequenceEquation;
+import io.github.vletard.analogy.sequence.SequenceProportion;
+import io.github.vletard.analogy.sequence.SequenceSolution;
+import io.github.vletard.analogy.set.ImmutableSet;
+import io.github.vletard.analogy.set.SetEquation;
+import io.github.vletard.analogy.tuple.Tuple;
+import io.github.vletard.analogy.tuple.TupleEquation;
+import io.github.vletard.analogy.tuple.TupleSolution;
+import io.github.vletard.analogy.util.CharacterSequence;
+
+public class Test {
+  private static <V> Tuple<V> singletonTuple(V item){
+    HashMap<Object, V> m = new HashMap<Object, V>();
+    m.put(0, item);
+    return new Tuple<V>(m);
+  }
+  
+  public static void main(String[] args) throws NoSolutionException {
+    String equation;
+    
+    Sequence<Character> A = new CharacterSequence("baa");
+    Sequence<Character> B = new CharacterSequence("aba");
+    Sequence<Character> C = new CharacterSequence("aab");
+    Sequence<Character> D = new CharacterSequence("aab");
+    SequenceEquation<Character> e = new SequenceEquation<Character>(A, B, C);
+    
+    assert(new SequenceProportion<Character>(A, B, C, D).isValid());
+
+    equation = A + " : " + B + " :: " + C + " : ";
+    boolean degreePrintedOut = false;
+    for (SequenceSolution<Character> s:e.nBestDegreeSolution(1)) {
+      if (!degreePrintedOut) {
+        System.out.println("Degree " + s.getDegree() + ":");
+        degreePrintedOut = true;
+      }
+      System.out.println(equation + s.getContent());
+//      System.out.println(Factorizations.toString(s.getFactorization()));
+    }
+    System.out.println();
+    
+    Tuple<CharacterSequence> tA = singletonTuple(new CharacterSequence("AKCKE"));
+    Tuple<CharacterSequence> tB = singletonTuple(new CharacterSequence("BKCKF"));
+    Tuple<CharacterSequence> tC = singletonTuple(new CharacterSequence("AKDKE"));
+    Tuple<CharacterSequence> tD = singletonTuple(new CharacterSequence("BKDKF"));
+    assert(new DefaultProportion<Object>(tA, tB, tC, tD).isValid());
+    
+    equation = tA + " : " + tB + " :: " + tC + " : ";
+    for (TupleSolution<CharacterSequence> s: new TupleEquation<CharacterSequence>(tA, tB, tC)) {
+      System.out.println(equation + s.getContent());
+    }
+    System.out.println();
+    
+    ImmutableSet<Integer> sA = new ImmutableSet<Integer>(new HashSet<Integer>(Arrays.asList(1, 2)));
+    ImmutableSet<Integer> sB = new ImmutableSet<Integer>(new HashSet<Integer>(Arrays.asList(3, 1, 5)));
+    ImmutableSet<Integer> sC = new ImmutableSet<Integer>(new HashSet<Integer>(Arrays.asList(2, 0, 4)));
+    ImmutableSet<Integer> sD = new ImmutableSet<Integer>(new HashSet<Integer>(Arrays.asList(4, 0, 3, 5)));
+    
+    assert(new DefaultProportion<Object>(sA, sB, sC, sD).isValid());
+    
+    equation = sA + " : " + sB + " :: " + sC + " : ";
+    for (Solution<ImmutableSet<Integer>> s: new SetEquation<Integer>(sA, sB, sC))
+      System.out.println(equation + s.getContent());
+  }
+}
