@@ -40,6 +40,7 @@ public class ImmutableSet<T> implements Iterable<T>, Serializable {
     return result;
   }
 
+  @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

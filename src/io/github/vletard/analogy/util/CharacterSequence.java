@@ -6,6 +6,8 @@ import java.util.List;
 import io.github.vletard.analogy.sequence.Sequence;
 
 public class CharacterSequence extends Sequence<Character>{
+  private static final long serialVersionUID = 5379880476535946361L;
+
   public CharacterSequence(String s){
     super(CharacterSequence.listOfString(s));
   }
