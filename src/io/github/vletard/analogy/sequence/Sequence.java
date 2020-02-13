@@ -1,9 +1,11 @@
 package io.github.vletard.analogy.sequence;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Sequence<T> implements Iterable<T> {
+public class Sequence<T> implements Iterable<T>, Serializable {
+  private static final long serialVersionUID = 7810330061732174873L;
   private final ArrayList<T> sequence;
 
   public Sequence(Iterable<T> s) {

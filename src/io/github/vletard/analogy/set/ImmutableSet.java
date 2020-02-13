@@ -1,11 +1,13 @@
 package io.github.vletard.analogy.set;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class ImmutableSet<T> implements Iterable<T> {
+public class ImmutableSet<T> implements Iterable<T>, Serializable {
+  private static final long serialVersionUID = -8404210739266224803L;
   private final Set<T> s;
   
   public ImmutableSet(Set<T> s) {

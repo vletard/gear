@@ -1,5 +1,6 @@
 package io.github.vletard.analogy.tuple;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,7 +9,8 @@ import java.util.Map;
 
 import io.github.vletard.analogy.util.RecursivelyPrintable;
 
-public class Tuple<V> {
+public class Tuple<V> implements Serializable {
+  private static final long serialVersionUID = 4818248083124898868L;
   private final Map<Object, V> items;
   
   public Tuple(Map<?, ? extends V> m) {
