@@ -9,7 +9,7 @@ import java.util.Map;
 
 import io.github.vletard.analogy.util.RecursivelyPrintable;
 
-public class Tuple<V> implements Serializable {
+public class Tuple<V> implements RecursivelyPrintable, Serializable {
   private static final long serialVersionUID = 4818248083124898868L;
   private final Map<Object, V> items;
   
@@ -32,6 +32,7 @@ public class Tuple<V> implements Serializable {
     return s;
   }
   
+  @Override
   public String prettyPrint(int offset) {
     HashSet<Object> simpleKeys = new HashSet<Object>();
     HashSet<Object> recursiveValues = new HashSet<Object>();
