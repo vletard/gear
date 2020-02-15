@@ -25,6 +25,10 @@ public class Tuple<V> implements RecursivelyPrintable, Serializable {
     return this.items.get(key);
   };
   
+  public boolean containsKey(Object key) {
+    return this.items.containsKey(key);
+  }
+  
   private static String writeOffset(int offset) {
     String s = "";
     for (int i = 0; i < offset; i++)
