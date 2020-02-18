@@ -15,7 +15,7 @@
     </target>
 
     <target name="run" depends="compile">
-        <java classname="analogy.Main" classpath="build/classes"/>
+        <java classname="io.github.vletard.analogy.Test" classpath="build/classes" failonerror="true"/>
     </target>
 
 </project>
