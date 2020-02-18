@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import io.github.vletard.analogy.util.RecursivelyPrintable;
+
 public class Sequence<T> implements Iterable<T>, Serializable {
   private static final long serialVersionUID = 7810330061732174873L;
   private final ArrayList<T> sequence;
