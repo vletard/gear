@@ -142,14 +142,20 @@ public class TupleSolutionIterator<T> implements Iterator<TupleSolution<T>> {
 
   @Override
   public boolean hasNext() {
-    if (this.dueForIncrementation)
-      return this.increment();
+    if (this.dueForIncrementation) {
+      if (this.increment()) {
+        this.dueForIncrementation = false;
+        return true;
+      }
+      else
+        return false;
+    }
     else
       for (int i = 0; i < this.keys.size(); i++) {
         ArrayList<Solution<T>> partialList = this.partialLists.get(i);
         if (partialList.size() <= this.currentIndex.get(i)) {
           // this state is supposed to only occur during the first call (delayed initialization)
-          assert(partialList.size() == i && i == 0);
+          assert(partialList.size() == 0);
           if (this.iterators.get(i).hasNext())
             partialList.add(this.iterators.get(i).next());
           else
