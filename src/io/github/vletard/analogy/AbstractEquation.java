@@ -1,5 +1,6 @@
 package io.github.vletard.analogy;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -13,7 +14,44 @@ public abstract class AbstractEquation<T, S extends Solution<? extends T>> imple
     this.c = c;
   }
   
-  public final Iterable<S> nBestDegreeSolution(int degreeCounter) {
+  public final Iterable<S> uniqueSolutions() {
+    return new Iterable<S>() {
+
+      @Override
+      public Iterator<S> iterator() {
+        return new Iterator<S>() {
+          private final Iterator<S> it = AbstractEquation.this.iterator();
+          private final HashSet<S> listed = new HashSet<S>();
+          private S current = null;
+          
+          @Override
+          public boolean hasNext() {
+            while ((this.current == null || this.listed.contains(this.current)) && this.it.hasNext())
+              this.current = this.it.next();
+            if (this.listed.contains(this.current)) {
+              assert(!this.it.hasNext());
+              this.current = null;
+            }
+            return this.current != null;
+          }
+
+          @Override
+          public S next() {
+            if (this.hasNext()) {
+              S solution = this.current;
+              this.listed.add(solution);
+              this.current = null;
+              return solution;
+            }
+            else
+              throw new NoSuchElementException();
+          }
+        };
+      }
+    };
+  }
+  
+  public final Iterable<S> nBestDegreeSolutions(int degreeCounter) {
     return new Iterable<S>() {
 
       @Override

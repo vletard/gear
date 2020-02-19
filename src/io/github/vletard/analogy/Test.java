@@ -34,7 +34,7 @@ public class Test {
 
     equation = A + " : " + B + " :: " + C + " : ";
     boolean degreePrintedOut = false;
-    for (SequenceSolution<Character> s:e.nBestDegreeSolution(1)) {
+    for (SequenceSolution<Character> s:e.nBestDegreeSolutions(1)) {
       if (!degreePrintedOut) {
         System.out.println("Degree " + s.getDegree() + ":");
         degreePrintedOut = true;
