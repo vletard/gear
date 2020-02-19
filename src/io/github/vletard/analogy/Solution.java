@@ -16,4 +16,9 @@ public class Solution<T> {
   public int getDegree() {
     return this.degree;
   }
+  
+  @Override
+  public String toString() {
+    return this.content.toString();
+  }
 }
