@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
 import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.Solution;
 
-public class TupleSolutionIterator<T> implements Iterator<TupleSolution<T>> {
+public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
 
   /**
    * List defining an order on the tuple equation keys.
@@ -178,18 +178,18 @@ public class TupleSolutionIterator<T> implements Iterator<TupleSolution<T>> {
   }
 
   @Override
-  public TupleSolution<T> next() {
+  public Solution<Tuple<T>> next() {
     if (this.hasNext()) {
-      HashMap<Object, Solution<T>> m = new HashMap<Object, Solution<T>>();
+      HashMap<Object, T> m = new HashMap<Object, T>();
       LinkedList<Integer> degreeList = new LinkedList<Integer>();
       for (int i = 0; i < this.keys.size(); i++) {
         Object k = this.keys.get(i);
         Solution<T> s = this.partialLists.get(i).get(this.currentIndex.get(i));
-        m.put(k, s);
+        m.put(k, s.getContent());
         degreeList.add(s.getDegree());
       }
       this.dueForIncrementation = true;
-      return new TupleSolution<T>(m, aggregateDegree(degreeList));
+      return new Solution<Tuple<T>>(new Tuple<T>(m), aggregateDegree(degreeList));
     }
     else
       throw new NoSuchElementException();

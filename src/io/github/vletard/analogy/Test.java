@@ -11,7 +11,6 @@ import io.github.vletard.analogy.set.ImmutableSet;
 import io.github.vletard.analogy.set.SetEquation;
 import io.github.vletard.analogy.tuple.Tuple;
 import io.github.vletard.analogy.tuple.TupleEquation;
-import io.github.vletard.analogy.tuple.TupleSolution;
 import io.github.vletard.analogy.util.CharacterSequence;
 
 public class Test {
@@ -51,7 +50,7 @@ public class Test {
     assert(new DefaultProportion<Object>(tA, tB, tC, tD).isValid());
     
     equation = tA + " : " + tB + " :: " + tC + " : ";
-    for (TupleSolution<CharacterSequence> s: new TupleEquation<CharacterSequence>(tA, tB, tC)) {
+    for (Solution<Tuple<CharacterSequence>> s: new TupleEquation<CharacterSequence>(tA, tB, tC)) {
       System.out.println(equation + s.getContent());
     }
     System.out.println();
