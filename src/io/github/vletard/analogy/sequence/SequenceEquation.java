@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import io.github.vletard.analogy.AbstractEquation;
+import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.Element;
 
 /**
@@ -21,7 +21,7 @@ import io.github.vletard.analogy.Element;
  *
  * @param <E> The items composing the sequences of the analogical Equation.
  */
-public class SequenceEquation<E> extends AbstractEquation<Sequence<E>, SequenceSolution<E>>{
+public class SequenceEquation<E> extends DefaultEquation<Sequence<E>, SequenceSolution<E>>{
 
   public SequenceEquation(Sequence<E> a, Sequence<E> b, Sequence<E> c){
     super(a, b, c);

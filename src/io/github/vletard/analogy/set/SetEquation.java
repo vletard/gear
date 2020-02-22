@@ -4,12 +4,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import io.github.vletard.analogy.AbstractEquation;
+import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.AtomicEquation;
 import io.github.vletard.analogy.NoSolutionException;
 import io.github.vletard.analogy.Solution;
 
-public class SetEquation<T> extends AbstractEquation<ImmutableSet<T>, Solution<ImmutableSet<T>>> {
+public class SetEquation<T> extends DefaultEquation<ImmutableSet<T>, Solution<ImmutableSet<T>>> {
 
   public SetEquation(ImmutableSet<T> a, ImmutableSet<T> b, ImmutableSet<T> c) {
     super(a, b, c);

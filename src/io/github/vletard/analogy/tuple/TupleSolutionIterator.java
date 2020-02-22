@@ -60,7 +60,7 @@ public class TupleSolutionIterator<T> implements Iterator<TupleSolution<T>> {
     this.partialLists = new ArrayList<ArrayList<Solution<T>>>();
     this.currentIndex = new ArrayList<Integer>();
     for (Object k: this.keys) {
-      Iterator<Solution<T>> it = new DefaultEquation<T, Solution<T>>(A.get(k), B.get(k), C.get(k)).iterator();
+      Iterator<Solution<T>> it = (Iterator<Solution<T>>) DefaultEquation.factory(A.get(k), B.get(k), C.get(k)).iterator();
       this.currentIndex.add(0);
       this.iterators.add(it);
       this.partialLists.add(new ArrayList<Solution<T>>());

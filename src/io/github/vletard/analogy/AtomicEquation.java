@@ -3,7 +3,7 @@ package io.github.vletard.analogy;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class AtomicEquation<T> extends AbstractEquation<T, Solution<T>> {
+public class AtomicEquation<T> extends DefaultEquation<T, Solution<T>> {
 
   public AtomicEquation(T A, T B, T C) {
     super(A, B, C);
