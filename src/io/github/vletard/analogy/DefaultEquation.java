@@ -11,16 +11,42 @@ import io.github.vletard.analogy.set.SetEquation;
 import io.github.vletard.analogy.tuple.Tuple;
 import io.github.vletard.analogy.tuple.TupleEquation;
 
+/**
+ * This abstract class gives the basis for the behaviour of an analogical equation.
+ * It is meant to be subclassed by specific equation types that behave accordingly to their
+ * specific item types.
+ * 
+ * All three items are public for quick access, as they are considered non mutable.
+ * @author Vincent Letard
+ *
+ * @param <T> the type of items that are considered in this equation
+ * @param <S> the solution type for this type of items (the generic is useful when one uses a subclass of {@link Solution})
+ */
 public abstract class DefaultEquation<T, S extends Solution<T>> implements Iterable<S> {
 
   public final T a, b, c;
 
+  /**
+   * Simple constructor that assigns each item to a field.
+   * @param a item
+   * @param b item
+   * @param c item
+   */
   public DefaultEquation(T a, T b, T c){
     this.a = a;
     this.b = b;
     this.c = c;
   }
 
+  /**
+   * Analyzes the runtime types of the provided items and builds the suitable equation subtype,
+   * then returns the created instance as a DefaultEquation.
+   * @param <E> the type of items in the expected DefaultEquation
+   * @param a item
+   * @param b item
+   * @param c item
+   * @return a newly created DefaultEquation
+   */
   public static <E> DefaultEquation<E, ? extends Solution<E>> factory(E a, E b, E c) {
     if (a instanceof ImmutableSet && b instanceof ImmutableSet && c instanceof ImmutableSet)
       return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new SetEquation<Object>((ImmutableSet<Object>) a, (ImmutableSet<Object>) b, (ImmutableSet<Object>) c);
@@ -32,6 +58,12 @@ public abstract class DefaultEquation<T, S extends Solution<T>> implements Itera
       return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new AtomicEquation<Object>(a, b, c);
   }
 
+  /**
+   * Builds and returns an {@link Iterable} wrapper for the solutions of this equation
+   * where duplicates are ignored.
+   * Solutions are enumerated in ascending order of degree.
+   * @return an Iterable object providing every unique solution of this equation on demand.
+   */
   public final Iterable<S> uniqueSolutions() {
     return new Iterable<S>() {
 
@@ -68,7 +100,14 @@ public abstract class DefaultEquation<T, S extends Solution<T>> implements Itera
       }
     };
   }
-
+  
+  /**
+   * Builds and returns an {@link Iterable} wrapper for the solutions of this equation,
+   * limiting the number of distinct degrees.
+   * Solutions are enumerated in ascending order of degree.
+   * @param degreeCounter the global number of distinct degrees that will be enumerated.
+   * @return an Iterable object providing every solution of this equation on demand until degreeCounter distinct degrees have been exhausted.
+   */
   public final Iterable<S> nBestDegreeSolutions(int degreeCounter) {
     return new Iterable<S>() {
 
