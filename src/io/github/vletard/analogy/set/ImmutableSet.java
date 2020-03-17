@@ -27,6 +27,10 @@ public class ImmutableSet<T> implements Iterable<T>, Serializable {
     return this.s.contains(o);
   }
   
+  public int size() {
+    return this.s.size();
+  }
+  
   @Override
   public String toString() {
     return this.s.toString();
