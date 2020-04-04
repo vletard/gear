@@ -161,6 +161,7 @@ public class Tuple<V> implements RecursivelyPrintable, Serializable {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + ((freeItems == null) ? 0 : freeItems.hashCode());
     result = prime * result + ((items == null) ? 0 : items.hashCode());
     return result;
   }
@@ -175,6 +176,11 @@ public class Tuple<V> implements RecursivelyPrintable, Serializable {
     if (getClass() != obj.getClass())
       return false;
     Tuple other = (Tuple) obj;
+    if (freeItems == null) {
+      if (other.freeItems != null)
+        return false;
+    } else if (!freeItems.equals(other.freeItems))
+      return false;
     if (items == null) {
       if (other.items != null)
         return false;
