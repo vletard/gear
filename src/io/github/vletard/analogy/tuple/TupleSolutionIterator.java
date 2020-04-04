@@ -84,7 +84,7 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
     boolean greaterDegreeAvailable = false;
     if (partialListIndex + 1 < this.partialLists.get(index).size()) {
       // attempt to increment the partial list index while remaining in the currentDegree limit
-      degreeList.set(index, this.partialLists.get(index).get(partialListIndex).getDegree());
+      degreeList.set(index, this.partialLists.get(index).get(partialListIndex + 1).getDegree());
       int aggregate = this.aggregateDegree(degreeList);
       if (aggregate <= this.currentDegree) {
         this.currentIndex.set(index, partialListIndex + 1);
@@ -96,11 +96,12 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
 
     // if the current index was not incremented yet, reset it and increment a subsequent index
     degreeList.set(index, this.partialLists.get(index).get(0).getDegree());
-    if (this.increment(degrees, index+1)){
+    Boolean result = this.increment(degrees, index+1);
+    if (result == Boolean.TRUE){
       this.currentIndex.set(index, 0); // only if the call succeeded
       return true;
     }
-    else if (greaterDegreeAvailable)
+    else if (greaterDegreeAvailable || result == null)
       return null;
     else
       return false;
