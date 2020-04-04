@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 
 import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.Solution;
+import io.github.vletard.analogy.util.InvalidParameterException;
 
 public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
 
@@ -18,6 +19,11 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
    * List defining an order on the tuple equation keys.
    */
   private final ArrayList<Object> keys;
+
+  /**
+   * List defining an order on the tuple equation free keys.
+   */
+  private final HashSet<Object> freeKeys;
 
   /**
    * The list of the solution iterators of each sub equation of this tuple equation.
@@ -54,6 +60,12 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
       keySet.addAll(B.keySet());
       keySet.addAll(C.keySet());
       this.keys = new ArrayList<Object>(keySet); // assigning an arbitrary order to the key set for indexing structures
+
+      keySet = new HashSet<Object>();
+      keySet.addAll(A.freeKeys());
+      keySet.addAll(B.freeKeys());
+      keySet.addAll(C.freeKeys());
+      this.freeKeys = keySet;
     }
 
     this.iterators = new ArrayList<Iterator<Solution<T>>>();
@@ -84,7 +96,10 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
     boolean greaterDegreeAvailable = false;
     if (partialListIndex + 1 < this.partialLists.get(index).size()) {
       // attempt to increment the partial list index while remaining in the currentDegree limit
-      degreeList.set(index, this.partialLists.get(index).get(partialListIndex + 1).getDegree());
+      if (this.freeKeys.contains(this.keys.get(index)))
+        degreeList.set(index, 0);
+      else
+        degreeList.set(index, this.partialLists.get(index).get(partialListIndex + 1).getDegree());
       int aggregate = this.aggregateDegree(degreeList);
       if (aggregate <= this.currentDegree) {
         this.currentIndex.set(index, partialListIndex + 1);
@@ -95,7 +110,10 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
     }
 
     // if the current index was not incremented yet, reset it and increment a subsequent index
-    degreeList.set(index, this.partialLists.get(index).get(0).getDegree());
+    if (this.freeKeys.contains(this.keys.get(index)))
+      degreeList.set(index, 0);
+    else
+      degreeList.set(index, this.partialLists.get(index).get(0).getDegree());
     Boolean result = this.increment(degrees, index+1);
     if (result == Boolean.TRUE){
       this.currentIndex.set(index, 0); // only if the call succeeded
@@ -114,7 +132,10 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
         LinkedList<Integer> degreeList = new LinkedList<Integer>();
         for (int i = 0; i < this.keys.size(); i++) {
           Solution<T> s = this.partialLists.get(i).get(this.currentIndex.get(i));
-          degreeList.add(s.getDegree());
+          if (this.freeKeys.contains(this.keys.get(i)))
+            degreeList.add(0);
+          else
+            degreeList.add(s.getDegree());
         }
 
         do { // increment until the resulting degree is greater or equal to the current degree (or until no more elements can be found)
@@ -122,12 +143,15 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
           degreeList = new LinkedList<Integer>();
           for (int i = 0; i < this.keys.size(); i++) {
             Solution<T> s = this.partialLists.get(i).get(this.currentIndex.get(i));
-            degreeList.add(s.getDegree());
+            if (this.freeKeys.contains(this.keys.get(i)))
+              degreeList.add(0);
+            else
+              degreeList.add(s.getDegree());
           }
         } while (result == Boolean.TRUE && this.aggregateDegree(degreeList) < this.currentDegree);
-        if (result == Boolean.TRUE)
+        if (result == Boolean.TRUE) // partialLists has been extended
           return true;
-        else if (result == Boolean.FALSE)
+        else if (result == Boolean.FALSE) // could not extend partialLists
           return false;
         else { // result is null, meaning that a greater degree is available
           for (int i = 0; i < this.keys.size(); i++)
@@ -181,16 +205,26 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
   @Override
   public Solution<Tuple<T>> next() {
     if (this.hasNext()) {
-      HashMap<Object, T> m = new HashMap<Object, T>();
+      HashMap<Object, T> regular = new HashMap<Object, T>();
+      HashMap<Object, T> free = new HashMap<Object, T>();
       LinkedList<Integer> degreeList = new LinkedList<Integer>();
       for (int i = 0; i < this.keys.size(); i++) {
         Object k = this.keys.get(i);
         Solution<T> s = this.partialLists.get(i).get(this.currentIndex.get(i));
-        m.put(k, s.getContent());
-        degreeList.add(s.getDegree());
+        if (this.freeKeys.contains(this.keys.get(i))) {
+          free.put(k, s.getContent());
+          degreeList.add(0);
+        } else {
+          regular.put(k, s.getContent());
+          degreeList.add(s.getDegree());
+        }
       }
       this.dueForIncrementation = true;
-      return new Solution<Tuple<T>>(new Tuple<T>(m), aggregateDegree(degreeList));
+      try {
+        return new Solution<Tuple<T>>(new Tuple<T>(regular, free), aggregateDegree(degreeList));
+      } catch (InvalidParameterException e) {
+        throw new RuntimeException("Unexpected exception.", e);
+      }
     }
     else
       throw new NoSuchElementException();

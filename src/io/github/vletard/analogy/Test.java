@@ -12,15 +12,11 @@ import io.github.vletard.analogy.set.SetEquation;
 import io.github.vletard.analogy.tuple.Tuple;
 import io.github.vletard.analogy.tuple.TupleEquation;
 import io.github.vletard.analogy.util.CharacterSequence;
+import io.github.vletard.analogy.util.InvalidParameterException;
 
 public class Test {
-  private static <V> Tuple<V> singletonTuple(V item){
-    HashMap<Object, V> m = new HashMap<Object, V>();
-    m.put(0, item);
-    return new Tuple<V>(m);
-  }
   
-  public static void main(String[] args) throws NoSolutionException {
+  public static void main(String[] args) throws NoSolutionException, InvalidParameterException {
     String equation;
     
     Sequence<Character> A = new CharacterSequence("baa");
@@ -43,14 +39,32 @@ public class Test {
     }
     System.out.println();
     
-    Tuple<CharacterSequence> tA = singletonTuple(new CharacterSequence("AKCKE"));
-    Tuple<CharacterSequence> tB = singletonTuple(new CharacterSequence("BKCKF"));
-    Tuple<CharacterSequence> tC = singletonTuple(new CharacterSequence("AKDKE"));
-    Tuple<CharacterSequence> tD = singletonTuple(new CharacterSequence("BKDKF"));
+    HashMap<String, CharacterSequence> regularMap, freeMap;
+    regularMap = new HashMap<String, CharacterSequence>();
+    freeMap = new HashMap<String, CharacterSequence>();
+    regularMap.put("regular", new CharacterSequence("AKCKE"));
+    freeMap.put("free", new CharacterSequence("AKCKE"));
+    Tuple<CharacterSequence> tA = new Tuple<CharacterSequence>(regularMap, freeMap);
+    regularMap = new HashMap<String, CharacterSequence>();
+    freeMap = new HashMap<String, CharacterSequence>();
+    regularMap.put("regular", new CharacterSequence("BKCKF"));
+    freeMap.put("free", new CharacterSequence("BKCKF"));
+    Tuple<CharacterSequence> tB = new Tuple<CharacterSequence>(regularMap, freeMap);
+    regularMap = new HashMap<String, CharacterSequence>();
+    freeMap = new HashMap<String, CharacterSequence>();
+    regularMap.put("regular", new CharacterSequence("AKDKE"));
+    freeMap.put("free", new CharacterSequence("AKDKE"));
+    Tuple<CharacterSequence> tC = new Tuple<CharacterSequence>(regularMap, freeMap);
+    regularMap = new HashMap<String, CharacterSequence>();
+    freeMap = new HashMap<String, CharacterSequence>();
+    regularMap.put("regular", new CharacterSequence("BKDKF"));
+    freeMap.put("free", new CharacterSequence("BKDKF"));
+    Tuple<CharacterSequence> tD = new Tuple<CharacterSequence>(regularMap, freeMap);
     assert(new DefaultProportion<Object>(tA, tB, tC, tD).isValid());
     
     equation = tA + " : " + tB + " :: " + tC + " : ";
-    for (Solution<Tuple<CharacterSequence>> s: new TupleEquation<CharacterSequence>(tA, tB, tC)) {
+    for (Solution<Tuple<CharacterSequence>> s: new TupleEquation<CharacterSequence>(tA, tB, tC).uniqueSolutions()) {
+//      System.out.println(s.getDegree());
       System.out.println(equation + s.getContent());
     }
     System.out.println();
