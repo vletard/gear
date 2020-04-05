@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.Element;
+import io.github.vletard.analogy.SubtypeRebuilder;
 
 /**
  * This class represents an analogical equation on sequences.
@@ -21,10 +22,13 @@ import io.github.vletard.analogy.Element;
  *
  * @param <E> The items composing the sequences of the analogical Equation.
  */
-public class SequenceEquation<E> extends DefaultEquation<Sequence<E>, SequenceSolution<E>>{
+public class SequenceEquation<E, Subtype extends Sequence<E>> extends DefaultEquation<Subtype, SequenceSolution<E, Subtype>>{
 
-  public SequenceEquation(Sequence<E> a, Sequence<E> b, Sequence<E> c){
+  private final SubtypeRebuilder<Sequence<E>, Subtype> rebuilder;
+  
+  public SequenceEquation(Subtype a, Subtype b, Subtype c, SubtypeRebuilder<Sequence<E>, Subtype> rebuilder){
     super(a, b, c);
+    this.rebuilder = rebuilder;
   }
 
   /**
@@ -54,18 +58,18 @@ public class SequenceEquation<E> extends DefaultEquation<Sequence<E>, SequenceSo
   }
 
   @Override
-  public Iterator<SequenceSolution<E>> iterator() {
+  public Iterator<SequenceSolution<E, Subtype>> iterator() {
     if (! SequenceEquation.this.checkCounts())
       return Collections.emptyIterator();
 
     else
-      return new Iterator<SequenceSolution<E>>() {
-        private final SortedMap<Integer, Set<EquationReadingHead<E>>> readingRegister = new TreeMap<Integer, Set<EquationReadingHead<E>>>();
-        private SequenceSolution<E> nextElement = null;
+      return new Iterator<SequenceSolution<E, Subtype>>() {
+        private final SortedMap<Integer, Set<EquationReadingHead<E, Subtype>>> readingRegister = new TreeMap<Integer, Set<EquationReadingHead<E, Subtype>>>();
+        private SequenceSolution<E, Subtype> nextElement = null;
   
         {
-          EquationReadingHead<E> head = new EquationReadingHead<E>(SequenceEquation.this);
-          Set<EquationReadingHead<E>> s = new HashSet<EquationReadingHead<E>>();
+          EquationReadingHead<E, Subtype> head = new EquationReadingHead<E, Subtype>(SequenceEquation.this);
+          Set<EquationReadingHead<E, Subtype>> s = new HashSet<EquationReadingHead<E, Subtype>>();
           s.add(head);
           this.readingRegister.put(head.getCurrentDegree(), s);
         }
@@ -74,8 +78,8 @@ public class SequenceEquation<E> extends DefaultEquation<Sequence<E>, SequenceSo
         public boolean hasNext() {
           while (this.nextElement == null && !this.readingRegister.isEmpty()) {
             int currentDegree = readingRegister.firstKey();
-            Set<EquationReadingHead<E>> s = readingRegister.get(currentDegree);
-            EquationReadingHead<E> currentHead = s.iterator().next();
+            Set<EquationReadingHead<E, Subtype>> s = readingRegister.get(currentDegree);
+            EquationReadingHead<E, Subtype> currentHead = s.iterator().next();
             s.remove(currentHead);
             if (s.isEmpty())
               readingRegister.remove(currentDegree);
@@ -83,15 +87,15 @@ public class SequenceEquation<E> extends DefaultEquation<Sequence<E>, SequenceSo
             if (currentHead.isFinished()) {
               List<Factor<E>> factorList = currentHead.getFactors();
               Sequence<E> sequence = Factorizations.extractElement(factorList, Element.D);
-              this.nextElement = new SequenceSolution<E>(sequence, currentDegree, factorList);
+              this.nextElement = new SequenceSolution<E, Subtype>(SequenceEquation.this.rebuilder.rebuild(sequence), currentDegree, factorList);
             }
             else{
               try{
                 for (Step step : new Step[]{Step.AB, Step.AC, Step.CD, Step.BD}) {
                   if (currentHead.canStep(step)){
-                    EquationReadingHead<E> newHead = currentHead.makeStep(step, true);
+                    EquationReadingHead<E, Subtype> newHead = currentHead.makeStep(step, true);
                     int newDegree = newHead.getCurrentDegree();
-                    readingRegister.putIfAbsent(newDegree, new HashSet<EquationReadingHead<E>>());
+                    readingRegister.putIfAbsent(newDegree, new HashSet<EquationReadingHead<E, Subtype>>());
                     readingRegister.get(newDegree).add(newHead);
                   }
                 }
@@ -108,9 +112,9 @@ public class SequenceEquation<E> extends DefaultEquation<Sequence<E>, SequenceSo
         }
   
         @Override
-        public SequenceSolution<E> next() {
+        public SequenceSolution<E, Subtype> next() {
           if (this.hasNext()) {
-            SequenceSolution<E> next = this.nextElement;
+            SequenceSolution<E, Subtype> next = this.nextElement;
             this.nextElement = null;
             return next;
           }

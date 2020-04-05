@@ -5,17 +5,21 @@ import java.util.Iterator;
 
 import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.Solution;
+import io.github.vletard.analogy.SubtypeRebuilder;
 
-public class TupleEquation<T> extends DefaultEquation<Tuple<T>, Solution<Tuple<T>>> {
+public class TupleEquation<T, Subtype extends Tuple<T>> extends DefaultEquation<Subtype, Solution<Subtype>> {
 
-  public TupleEquation(Tuple<T> a, Tuple<T> b, Tuple<T> c) {
+  private final SubtypeRebuilder<Tuple<T>, Subtype> rebuilder;
+  
+  public TupleEquation(Subtype a, Subtype b, Subtype c, SubtypeRebuilder<Tuple<T>, Subtype> rebuilder) {
     super(a, b, c);
+    this.rebuilder = rebuilder;
   }
 
   @Override
-  public Iterator<Solution<Tuple<T>>> iterator() {
+  public Iterator<Solution<Subtype>> iterator() {
     if (this.a instanceof Tuple && this.b instanceof Tuple && this.c instanceof Tuple) {
-      return new TupleSolutionIterator<T>(this.a, this.b, this.c);
+      return new TupleSolutionIterator<T, Subtype>(this.a, this.b, this.c, rebuilder);
     }
     else
       return Collections.emptyIterator();

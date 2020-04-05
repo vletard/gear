@@ -8,9 +8,9 @@ import io.github.vletard.analogy.sequence.SequenceEquation;
 import io.github.vletard.analogy.sequence.SequenceProportion;
 import io.github.vletard.analogy.sequence.SequenceSolution;
 import io.github.vletard.analogy.set.ImmutableSet;
-import io.github.vletard.analogy.set.SetEquation;
+import io.github.vletard.analogy.set.SimpleSetEquation;
+import io.github.vletard.analogy.tuple.SimpleTupleEquation;
 import io.github.vletard.analogy.tuple.Tuple;
-import io.github.vletard.analogy.tuple.TupleEquation;
 import io.github.vletard.analogy.util.CharacterSequence;
 import io.github.vletard.analogy.util.InvalidParameterException;
 
@@ -19,17 +19,22 @@ public class Test {
   public static void main(String[] args) throws NoSolutionException, InvalidParameterException {
     String equation;
     
-    Sequence<Character> A = new CharacterSequence("baa");
-    Sequence<Character> B = new CharacterSequence("aba");
-    Sequence<Character> C = new CharacterSequence("aab");
-    Sequence<Character> D = new CharacterSequence("aab");
-    SequenceEquation<Character> e = new SequenceEquation<Character>(A, B, C);
+    CharacterSequence A = new CharacterSequence("baa");
+    CharacterSequence B = new CharacterSequence("aba");
+    CharacterSequence C = new CharacterSequence("aab");
+    CharacterSequence D = new CharacterSequence("aab");
+    SequenceEquation<Character, CharacterSequence> e = new SequenceEquation<Character, CharacterSequence>(A, B, C, new SubtypeRebuilder<Sequence<Character>, CharacterSequence>() {
+      @Override
+      public CharacterSequence rebuild(Sequence<Character> object) {
+        return new CharacterSequence(object);
+      }
+    });
     
     assert(new SequenceProportion<Character>(A, B, C, D).isValid());
 
     equation = A + " : " + B + " :: " + C + " : ";
     boolean degreePrintedOut = false;
-    for (SequenceSolution<Character> s:e.nBestDegreeSolutions(1)) {
+    for (SequenceSolution<Character, ?> s:e.nBestDegreeSolutions(1)) {
       if (!degreePrintedOut) {
         System.out.println("Degree " + s.getDegree() + ":");
         degreePrintedOut = true;
@@ -63,7 +68,7 @@ public class Test {
     assert(new DefaultProportion<Object>(tA, tB, tC, tD).isValid());
     
     equation = tA + " : " + tB + " :: " + tC + " : ";
-    for (Solution<Tuple<CharacterSequence>> s: new TupleEquation<CharacterSequence>(tA, tB, tC).uniqueSolutions()) {
+    for (Solution<Tuple<CharacterSequence>> s: new SimpleTupleEquation<CharacterSequence>(tA, tB, tC).uniqueSolutions()) {
 //      System.out.println(s.getDegree());
       System.out.println(equation + s.getContent());
     }
@@ -77,7 +82,7 @@ public class Test {
     assert(new DefaultProportion<Object>(sA, sB, sC, sD).isValid());
     
     equation = sA + " : " + sB + " :: " + sC + " : ";
-    for (Solution<ImmutableSet<Integer>> s: new SetEquation<Integer>(sA, sB, sC))
+    for (Solution<ImmutableSet<Integer>> s: new SimpleSetEquation<Integer>(sA, sB, sC))
       System.out.println(equation + s.getContent());
   }
 }

@@ -1,7 +1,6 @@
 package io.github.vletard.analogy.tuple;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;

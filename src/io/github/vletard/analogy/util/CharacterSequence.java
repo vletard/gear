@@ -12,7 +12,7 @@ public class CharacterSequence extends Sequence<Character>{
     super(CharacterSequence.listOfString(s));
   }
 
-  public CharacterSequence(List<Character> l){
+  public CharacterSequence(Iterable<Character> l){
     super(l);
   }
 

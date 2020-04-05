@@ -2,8 +2,8 @@ package io.github.vletard.analogy.sequence;
 
 import java.util.List;
 
-public class EquationReadingHead<E>{
-  private final SequenceEquation<E> equation;
+public class EquationReadingHead<E, Subtype extends Sequence<E>>{
+  private final SequenceEquation<E, Subtype> equation;
   private final int a, b, c;
   private final List<Factor<E>> factors;
 
@@ -12,7 +12,7 @@ public class EquationReadingHead<E>{
     return Factorizations.toString(this.factors);
   }
 
-  public EquationReadingHead(SequenceEquation<E> p){
+  public EquationReadingHead(SequenceEquation<E, Subtype> p){
     this.equation = p;
     this.a = 0;
     this.b = 0;
@@ -28,7 +28,7 @@ public class EquationReadingHead<E>{
     return this.equation.c.get(this.c);
   }
 
-  private EquationReadingHead(EquationReadingHead<E> eqn, Step step) throws ImpossibleStepException{
+  private EquationReadingHead(EquationReadingHead<E, Subtype> eqn, Step step) throws ImpossibleStepException{
     if (!eqn.canStep(step))
       throw new ImpossibleStepException();
     this.equation = eqn.equation;
@@ -109,11 +109,11 @@ public class EquationReadingHead<E>{
    * @return A new reading head after performing the given step.
    * @throws ImpossibleStepException If the step cannot be applied.
    */
-  public EquationReadingHead<E> makeStep(Step step, boolean fastForward) throws ImpossibleStepException {
-    EquationReadingHead<E> newHead = new EquationReadingHead<E>(this, step);
+  public EquationReadingHead<E, Subtype> makeStep(Step step, boolean fastForward) throws ImpossibleStepException {
+    EquationReadingHead<E, Subtype> newHead = new EquationReadingHead<E, Subtype>(this, step);
     if (fastForward) {
       while (newHead.canStep(step) && (step != Step.BD || !newHead.canStep(Step.AB)) && (step != Step.CD || !newHead.canStep(Step.AC)) ) {
-        EquationReadingHead<E> fastForwardHead = newHead.makeStep(step, fastForward);
+        EquationReadingHead<E, Subtype> fastForwardHead = newHead.makeStep(step, fastForward);
         if (fastForwardHead.getCurrentDegree() > newHead.getCurrentDegree())
           break;
         else

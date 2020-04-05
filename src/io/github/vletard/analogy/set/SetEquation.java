@@ -7,29 +7,33 @@ import java.util.Iterator;
 import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.AtomicEquation;
 import io.github.vletard.analogy.NoSolutionException;
+import io.github.vletard.analogy.SubtypeRebuilder;
 import io.github.vletard.analogy.Solution;
 
-public class SetEquation<T> extends DefaultEquation<ImmutableSet<T>, Solution<ImmutableSet<T>>> {
+public class SetEquation<Item, Subtype extends ImmutableSet<Item>> extends DefaultEquation<Subtype, Solution<Subtype>> {
 
-  public SetEquation(ImmutableSet<T> a, ImmutableSet<T> b, ImmutableSet<T> c) {
+  private final SubtypeRebuilder<ImmutableSet<Item>, Subtype> rebuilder;
+  
+  public SetEquation(Subtype a, Subtype b, Subtype c, SubtypeRebuilder<ImmutableSet<Item>, Subtype> rebuilder) {
     super(a, b, c);
+    this.rebuilder = rebuilder;
   }
-
+  
   @Override
-  public Iterator<Solution<ImmutableSet<T>>> iterator() {
-    HashSet<T> union = new HashSet<T>();
+  public Iterator<Solution<Subtype>> iterator() {
+    HashSet<Item> union = new HashSet<Item>();
     union.addAll(this.a.asSet());
     union.addAll(this.b.asSet());
     union.addAll(this.c.asSet());
-    HashSet<T> solution = new HashSet<T>();
-    for (T item: union) {
-      try {
+    try {
+      HashSet<Item> solution = new HashSet<Item>();
+      for (Item item: union)
         if (new AtomicEquation<Boolean>(a.contains(item), b.contains(item), c.contains(item)).getSolution().getContent())
           solution.add(item);
-      } catch (NoSolutionException e) { // if one of the objects does not respect the analogical constraint, the equation has no solution
-        return Collections.emptyIterator();
-      }
+      
+      return Collections.singleton(new Solution<Subtype>(rebuilder.rebuild(new ImmutableSet<Item>(solution)), 1)).iterator();
+    } catch (NoSolutionException e) { // if one of the objects does not respect the analogical constraint, the equation fails
+      return Collections.emptyIterator();
     }
-    return Collections.singleton(new Solution<ImmutableSet<T>>(new ImmutableSet<T>(solution), 1)).iterator();
   }
 }

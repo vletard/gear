@@ -9,6 +9,12 @@ public class AtomicEquation<T> extends DefaultEquation<T, Solution<T>> {
     super(A, B, C);
   }
   
+  /**
+   * Returns the single solution of this atomic equation, or throws a {@link NoSolutionException}
+   * if there is none.
+   * @return the associated solution to this equation.
+   * @throws NoSolutionException if no solution exist
+   */
   public Solution<T> getSolution() throws NoSolutionException {
     Iterator<Solution<T>> it = this.iterator();
     if (it.hasNext())

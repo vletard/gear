@@ -11,10 +11,16 @@ import java.util.NoSuchElementException;
 
 import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.Solution;
+import io.github.vletard.analogy.SubtypeRebuilder;
 import io.github.vletard.analogy.util.InvalidParameterException;
 
-public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
+public class TupleSolutionIterator<T, Subtype extends Tuple<T>> implements Iterator<Solution<Subtype>> {
 
+  /**
+   * Rebuider for a subtype of Tuple if needed (if Tuple is subtyped in another package).
+   */
+  private final SubtypeRebuilder<Tuple<T>, Subtype> rebuilder;
+  
   /**
    * List defining an order on the tuple equation keys.
    */
@@ -53,7 +59,7 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
    */
   private boolean dueForIncrementation;
 
-  public TupleSolutionIterator(Tuple<T> A, Tuple<T> B, Tuple<T> C){
+  public TupleSolutionIterator(Tuple<T> A, Tuple<T> B, Tuple<T> C, SubtypeRebuilder<Tuple<T>, Subtype> rebuilder){
     {
       HashSet<Object> keySet = new HashSet<Object>();
       keySet.addAll(A.keySet());
@@ -66,6 +72,7 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
       keySet.addAll(B.freeKeys());
       keySet.addAll(C.freeKeys());
       this.freeKeys = keySet;
+      this.rebuilder = rebuilder;
     }
 
     this.iterators = new ArrayList<Iterator<Solution<T>>>();
@@ -203,7 +210,7 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
   }
 
   @Override
-  public Solution<Tuple<T>> next() {
+  public Solution<Subtype> next() {
     if (this.hasNext()) {
       HashMap<Object, T> regular = new HashMap<Object, T>();
       HashMap<Object, T> free = new HashMap<Object, T>();
@@ -221,7 +228,7 @@ public class TupleSolutionIterator<T> implements Iterator<Solution<Tuple<T>>> {
       }
       this.dueForIncrementation = true;
       try {
-        return new Solution<Tuple<T>>(new Tuple<T>(regular, free), aggregateDegree(degreeList));
+        return new Solution<Subtype>(this.rebuilder.rebuild(new Tuple<T>(regular, free)), aggregateDegree(degreeList));
       } catch (InvalidParameterException e) {
         throw new RuntimeException("Unexpected exception.", e);
       }
