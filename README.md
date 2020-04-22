@@ -17,19 +17,17 @@ This type represents lists of any type of items.
 When an analogy exists between four sequences, it can be decomposed into the factorization of subsequences of its items.
 A factorization is an alignment of alternating subsequence pairings as illustrated below.
 
-The analogical equation 'baa : aba :: aab : aab' can be decomposed into the following factorizations (among others):
-'''
-0    |ba|a|  
-1   a|ba| |  
-2    |  |a|ab
-3   a|  | |ab
+The analogical equation `baa : aba :: aab : aab` can be decomposed into the following factorizations (among others):
 
-
-0     |b|a| |a
-1     | |a|b|a
-2   aa|b| | | 
-3   aa| | |b| 
-'''
+    0    |ba|a|  
+    1   a|ba| |  
+    2    |  |a|ab
+    3   a|  | |ab
+    
+    0     |b|a| |a
+    1     | |a|b|a
+    2   aa|b| | | 
+    3   aa| | |b| 
 
 The notion of degree defined on factorizations can be a hint of the quality (or intelligibility) of the analogy, the lower degree being the better (simpler).
 The degree is the total number of factors (unit alignment of a pair of subsequences) in a factorization.
@@ -51,9 +49,7 @@ The degree of an analogy between four tuples is the maximum degree of the set of
 Analogies are also defined on sets (named ImmutableSet in GEAR, to avoid class name collision). 
 They are analogous to analogies between tuples which keys are the items in the sets and values are booleans denoting whether the item is included.
 
-'''
-[1, 2] : [1, 3, 5] :: [0, 2, 4] : [0, 3, 4, 5]
-'''
+    [1, 2] : [1, 3, 5] :: [0, 2, 4] : [0, 3, 4, 5]
 
 ### Anything else
 
@@ -61,11 +57,9 @@ Analogies between quadruplets of any other type or heterogeneous types are proce
 In atomic analogies, items are only tested for equality (equals method).
 Only two atomic analogies exist:
 
-'''
-itemA : itemA :: itemB : itemB
-
-itemA : itemB :: itemA : itemB
-'''
+    itemA : itemA :: itemB : itemB
+    
+    itemA : itemB :: itemA : itemB
 
 ## Subtype reconstruction
 
