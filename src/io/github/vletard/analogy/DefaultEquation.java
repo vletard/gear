@@ -5,14 +5,11 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import io.github.vletard.analogy.sequence.Sequence;
-import io.github.vletard.analogy.sequence.SequenceEquation;
 import io.github.vletard.analogy.sequence.SimpleSequenceEquation;
 import io.github.vletard.analogy.set.ImmutableSet;
-import io.github.vletard.analogy.set.SetEquation;
 import io.github.vletard.analogy.set.SimpleSetEquation;
 import io.github.vletard.analogy.tuple.SimpleTupleEquation;
 import io.github.vletard.analogy.tuple.Tuple;
-import io.github.vletard.analogy.tuple.TupleEquation;
 
 /**
  * This abstract class gives the basis for the behaviour of an analogical equation.

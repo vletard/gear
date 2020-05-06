@@ -3,7 +3,6 @@ package io.github.vletard.analogy.sequence;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -20,7 +19,7 @@ import io.github.vletard.analogy.DefaultProportion;
  */
 public class SequenceProportion<E> extends DefaultProportion<Sequence<E>>{
   private Boolean valid;
-  private List<Factor<E, Sequence<E>>> factorization;
+  private Factorization<E, Sequence<E>> factorization;
   
   public static class InvalidProportionException extends Exception{
     private static final long serialVersionUID = -5958668638828140006L;
@@ -47,7 +46,7 @@ public class SequenceProportion<E> extends DefaultProportion<Sequence<E>>{
    * @return The computed factorization.
    * @throws InvalidProportionException if the Proportion is invalid.
    */
-  public List<Factor<E, Sequence<E>>> getFactorization() throws InvalidProportionException {
+  public Factorization<E, Sequence<E>> getFactorization() throws InvalidProportionException {
     if (this.isValid())
       return this.factorization;
     else

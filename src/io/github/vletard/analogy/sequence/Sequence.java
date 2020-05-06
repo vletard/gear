@@ -32,6 +32,17 @@ public class Sequence<E> implements Iterable<E>, Serializable {
     sequence.addAll(b.sequence);
     return new Sequence<E>(sequence);
   }
+  
+  /**
+   * Concatenates string expressions of items in this sequence and return the resulting string.
+   * @return The concatenation of the string representation of all the elements in the sequence.
+   */
+  public String concatenate() {
+    String str = "";
+    for (E item: this)
+      str += item.toString();
+    return str;
+  }
 
   @Override
   public int hashCode() {

@@ -1,14 +1,12 @@
 package io.github.vletard.analogy.sequence;
 
-import java.util.List;
-
 import io.github.vletard.analogy.SubtypeRebuilder;
 import io.github.vletard.analogy.sequence.Step;
 
 public class ProportionReadingHead<E>{
   private final SequenceProportion<E> proportion;
   private final int a, b, c, d;
-  private final List<Factor<E, Sequence<E>>> factors;
+  private final Factorization<E, Sequence<E>> factorization;
 
   public ProportionReadingHead(SequenceProportion<E> p){
     this.proportion = p;
@@ -16,7 +14,7 @@ public class ProportionReadingHead<E>{
     this.b = 0;
     this.c = 0;
     this.d = 0;
-    this.factors = Factorizations.newFactorization();
+    this.factorization = new Factorization<E, Sequence<E>>(SubtypeRebuilder.identity());
   }
 
   /**
@@ -26,31 +24,31 @@ public class ProportionReadingHead<E>{
    * @return The current degree of this ProportionReadingHead.
    */
   public int getCurrentDegree(){
-    return this.factors.size();
+    return this.factorization.size();
   }
 
-  private ProportionReadingHead(ProportionReadingHead<E> previous, Step step) throws ImpossibleStepException{
-    if (!previous.canStep(step))
+  private ProportionReadingHead(ProportionReadingHead<E> prev, Step step) throws ImpossibleStepException{
+    if (!prev.canStep(step))
       throw new ImpossibleStepException();
-    this.proportion = previous.proportion;
-    int a = previous.a;
-    int b = previous.b;
-    int c = previous.c;
-    int d = previous.d;
+    this.proportion = prev.proportion;
+    int a = prev.a;
+    int b = prev.b;
+    int c = prev.c;
+    int d = prev.d;
     switch (step){
-      case AB : this.factors = Factorizations.extendListB(previous.factors, false, previous.getB(), SubtypeRebuilder.identity());
+      case AB : this.factorization = prev.factorization.extendListB(false, prev.getB());
                 a += 1;
                 b += 1;
                 break;
-      case AC : this.factors = Factorizations.extendListC(previous.factors, true, previous.getC(), SubtypeRebuilder.identity());
+      case AC : this.factorization = prev.factorization.extendListC(true, prev.getC());
                 a += 1;
                 c += 1;
                 break;
-      case CD : this.factors = Factorizations.extendListC(previous.factors, false, previous.getC(), SubtypeRebuilder.identity());
+      case CD : this.factorization = prev.factorization.extendListC(false, prev.getC());
                 c += 1;
                 d += 1;
                 break;
-      case BD : this.factors = Factorizations.extendListB(previous.factors, true, previous.getB(), SubtypeRebuilder.identity());
+      case BD : this.factorization = prev.factorization.extendListB(true, prev.getB());
                 b += 1;
                 d += 1;
                 break;
@@ -141,7 +139,7 @@ public class ProportionReadingHead<E>{
     result = prime * result + b;
     result = prime * result + c;
     result = prime * result + d;
-    result = prime * result + ((factors == null) ? 0 : factors.hashCode());
+    result = prime * result + ((factorization == null) ? 0 : factorization.hashCode());
     result = prime * result + ((proportion == null) ? 0 : proportion.hashCode());
     return result;
   }
@@ -164,10 +162,10 @@ public class ProportionReadingHead<E>{
       return false;
     if (d != other.d)
       return false;
-    if (factors == null) {
-      if (other.factors != null)
+    if (factorization == null) {
+      if (other.factorization != null)
         return false;
-    } else if (!factors.equals(other.factors))
+    } else if (!factorization.equals(other.factorization))
       return false;
     if (proportion == null) {
       if (other.proportion != null)
@@ -179,9 +177,9 @@ public class ProportionReadingHead<E>{
   
   /**
    * Returns the factorization corresponding to this ProportionReadingHead, for its current state.
-   * @return the factorization (list of {@link Factor}) of this ProportionReadingHead.
+   * @return the factorization of this ProportionReadingHead.
    */
-  public List<Factor<E, Sequence<E>>> getFactors() {
-    return this.factors;
+  public Factorization<E, Sequence<E>> getFactors() {
+    return this.factorization;
   }
 }

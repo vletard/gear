@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -89,9 +88,9 @@ public class SequenceEquation<E, Subtype extends Sequence<E>> extends DefaultEqu
               readingRegister.remove(currentDegree);
   
             if (currentHead.isFinished()) {
-              List<Factor<E, Subtype>> factorList = currentHead.getFactors();
-              Sequence<E> sequence = Factorizations.extractElement(factorList, Element.D);
-              this.nextElement = new SequenceSolution<E, Subtype>(SequenceEquation.this.rebuilder.rebuild(sequence), currentDegree, factorList);
+              Factorization<E, Subtype> factorization = currentHead.getFactorization();
+              Sequence<E> sequence = factorization.extractElement(Element.D);
+              this.nextElement = new SequenceSolution<E, Subtype>(SequenceEquation.this.rebuilder.rebuild(sequence), currentDegree, factorization);
             }
             else{
               try{
