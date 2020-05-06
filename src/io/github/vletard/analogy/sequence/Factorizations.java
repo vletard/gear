@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import io.github.vletard.analogy.Element;
+import io.github.vletard.analogy.SubtypeRebuilder;
 
 /**
  * This tool class provides primitives for managing Factor lists.
@@ -21,18 +22,18 @@ public class Factorizations {
    * Extends the provided Factor list with the provided item on B and D if crossed is true,
    * on A and B otherwise.
    * The extended Factor list is returned, the provided list is not edited.
-   * @param <E> Type of objects in the factorization.
+   * @param <S> Type of sequence in the factorization.
    * @param factors The factorization to be extended, will not be edited.
    * @param crossed Whether the new item should be added as crossed factor or not (see {@link Factor}).
    * @param item Item to be added for extension.
    * @return An immutable extension of the provided list with the provided item.
    */
-  public static <E> List<Factor<E>> extendListB(List<Factor<E>> factors, boolean crossed, E item) {
-    LinkedList<Factor<E>> newList = new LinkedList<Factor<E>>(factors);
+  public static <E, S extends Sequence<E>> List<Factor<E, S>> extendListB(List<Factor<E, S>> factors, boolean crossed, E item, SubtypeRebuilder<Sequence<E>, S> rebuilder) {
+    LinkedList<Factor<E, S>> newList = new LinkedList<Factor<E, S>>(factors);
     if (newList.isEmpty() || newList.getLast().isCrossed() != crossed)
-      newList.add(new Factor<E>(crossed, Collections.singletonList(item), Collections.emptyList()));
+      newList.add(new Factor<E, S>(crossed, Collections.singletonList(item), Collections.emptyList(), rebuilder));
     else
-      newList.add(new Factor<E>(newList.removeLast(), Collections.singletonList(item), Collections.emptyList()));
+      newList.add(new Factor<E, S>(newList.removeLast(), Collections.singletonList(item), Collections.emptyList()));
     return Collections.unmodifiableList(newList);
   }
   
@@ -46,12 +47,12 @@ public class Factorizations {
    * @param item Item to be added for extension.
    * @return An immutable extension of the provided list with the provided item.
    */
-  public static <E> List<Factor<E>> extendListC(List<Factor<E>> factorization, boolean crossed, E item) {
-    LinkedList<Factor<E>> newList = new LinkedList<Factor<E>>(factorization);
+  public static <E, S extends Sequence<E>> List<Factor<E, S>> extendListC(List<Factor<E, S>> factorization, boolean crossed, E item, SubtypeRebuilder<Sequence<E>, S> rebuilder) {
+    LinkedList<Factor<E, S>> newList = new LinkedList<Factor<E, S>>(factorization);
     if (newList.isEmpty() || newList.getLast().isCrossed() != crossed)
-      newList.add(new Factor<E>(crossed, Collections.emptyList(), Collections.singletonList(item)));
+      newList.add(new Factor<E, S>(crossed, Collections.emptyList(), Collections.singletonList(item), rebuilder));
     else
-      newList.add(new Factor<E>(newList.removeLast(), Collections.emptyList(), Collections.singletonList(item)));
+      newList.add(new Factor<E, S>(newList.removeLast(), Collections.emptyList(), Collections.singletonList(item)));
     return Collections.unmodifiableList(newList);
   }
   
@@ -60,19 +61,18 @@ public class Factorizations {
    * @param <E> Type of objects in the factorization (actually in the extensions of the factorization).
    * @return An immutable factorization of type <E>.
    */
-  public static <E> List<Factor<E>> newFactorization(){
+  public static <E, S extends Sequence<E>> List<Factor<E, S>> newFactorization(){
     return Collections.emptyList();
   }
   
   /**
    * Concatenates string expressions of items in the provided list and return the resulting string.
-   * @param <E> Type of objects in the factorization.
    * @param l List of which elements are to be concatenated.
    * @return The concatenation of the string representation of all the elements in the provided list.
    */
-  private static <E> String concatenateList(List<E> l) {
+  private static String concatenateList(Sequence<?> l) {
     String str = "";
-    Iterator<E> it = l.iterator();
+    Iterator<?> it = l.iterator();
     while (it.hasNext())
       str += it.next().toString();
     return str;
@@ -85,16 +85,16 @@ public class Factorizations {
    * @param e The element to be extracted.
    * @return A list representing the concatenation of the sequence of the element.
    */
-  public static <E> Sequence<E> extractElement(List<Factor<E>> factorization, Element e){
-    LinkedList<E> element = new LinkedList<E>();
-    for (Factor<E> f: factorization) {
+  public static <E, S extends Sequence<E>> Sequence<E> extractElement(List<Factor<E, S>> factorization, Element e){
+    Sequence<E> s = new Sequence<E>(Collections.emptyList());
+    for (Factor<E, S> f: factorization) {
       if ((f.isCrossed() && (e == Element.B || e == Element.D))
           || (!f.isCrossed() && (e == Element.A || e == Element.B)))
-        element.addAll(f.getB());
+        s = Sequence.concat(s, f.getB());
       else
-        element.addAll(f.getC());
+        s = Sequence.concat(s, f.getC());
     }
-    return new Sequence<E>(element);
+    return new Sequence<E>(s);
   }
   
   /**
@@ -102,10 +102,10 @@ public class Factorizations {
    * @param factorization The factorization from which to compute the size.
    * @return The size of the factorization.
    */
-  public static <E> int getSize(List<Factor<E>> factorization) {
+  public static <E, S extends Sequence<E>> int getSize(List<Factor<E, S>> factorization) {
     int size = 0;
     for (int i=0; i<factorization.size(); i++) {
-      Factor<E> f = factorization.get(i);
+      Factor<E, S> f = factorization.get(i);
       size += Math.max(concatenateList(f.getB()).length(), concatenateList(f.getC()).length());
     }
     return size;
@@ -117,10 +117,10 @@ public class Factorizations {
    * @param factorization The factorization to be aligned in a string.
    * @return A 4 line string representation of the factorization.
    */
-  public static <E> String toString(List<Factor<E>> factorization) {
+  public static <E, S extends Sequence<E>> String toString(List<Factor<E, S>> factorization) {
     ArrayList<Integer> maxSizes = new ArrayList<Integer>();
     for (int i=0; i<factorization.size(); i++) {
-      Factor<E> f = factorization.get(i);
+      Factor<E, S> f = factorization.get(i);
       maxSizes.add(Math.max(concatenateList(f.getB()).length(), concatenateList(f.getC()).length()));
     }
     
@@ -128,7 +128,7 @@ public class Factorizations {
     for (int i=0; i<4; i++) {
       str += i + " ";
       for (int j=0; j<factorization.size(); j++) {
-        Factor<E> f = factorization.get(j);
+        Factor<E, S> f = factorization.get(j);
         int size = maxSizes.get(j);
         String content;
         if (i==1 || (i==0 && !f.isCrossed()) || (i==3 && f.isCrossed()))

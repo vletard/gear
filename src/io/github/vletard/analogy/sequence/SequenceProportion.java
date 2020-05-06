@@ -20,7 +20,7 @@ import io.github.vletard.analogy.DefaultProportion;
  */
 public class SequenceProportion<E> extends DefaultProportion<Sequence<E>>{
   private Boolean valid;
-  private List<Factor<E>> factorization;
+  private List<Factor<E, Sequence<E>>> factorization;
   
   public static class InvalidProportionException extends Exception{
     private static final long serialVersionUID = -5958668638828140006L;
@@ -47,7 +47,7 @@ public class SequenceProportion<E> extends DefaultProportion<Sequence<E>>{
    * @return The computed factorization.
    * @throws InvalidProportionException if the Proportion is invalid.
    */
-  public List<Factor<E>> getFactorization() throws InvalidProportionException {
+  public List<Factor<E, Sequence<E>>> getFactorization() throws InvalidProportionException {
     if (this.isValid())
       return this.factorization;
     else

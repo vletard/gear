@@ -5,7 +5,7 @@ import java.util.List;
 public class EquationReadingHead<E, Subtype extends Sequence<E>>{
   private final SequenceEquation<E, Subtype> equation;
   private final int a, b, c;
-  private final List<Factor<E>> factors;
+  private final List<Factor<E, Subtype>> factors;
 
   @Override
   public String toString(){
@@ -36,18 +36,18 @@ public class EquationReadingHead<E, Subtype extends Sequence<E>>{
     int b = eqn.b;
     int c = eqn.c;
     switch (step){
-    case AB : this.factors = Factorizations.extendListB(eqn.factors, false, eqn.getB());
+    case AB : this.factors = Factorizations.extendListB(eqn.factors, false, eqn.getB(), this.equation.getRebuilder());
     a += 1;
     b += 1;
     break;
-    case AC : this.factors = Factorizations.extendListC(eqn.factors, true, eqn.getC());
+    case AC : this.factors = Factorizations.extendListC(eqn.factors, true, eqn.getC(), this.equation.getRebuilder());
     a += 1;
     c += 1;
     break;
-    case CD : this.factors = Factorizations.extendListC(eqn.factors, false, eqn.getC());
+    case CD : this.factors = Factorizations.extendListC(eqn.factors, false, eqn.getC(), this.equation.getRebuilder());
     c += 1;
     break;
-    case BD : this.factors = Factorizations.extendListB(eqn.factors, true, eqn.getB());
+    case BD : this.factors = Factorizations.extendListB(eqn.factors, true, eqn.getB(), this.equation.getRebuilder());
     b += 1;
     break;
     default: throw new IllegalArgumentException("A new reading head can only be created with a defined step.");
@@ -97,7 +97,7 @@ public class EquationReadingHead<E, Subtype extends Sequence<E>>{
    * It contains the solution built up to this state.
    * @return the factorization (list of {@link Factor}) of this EquationReadingHead.
    */
-  public List<Factor<E>> getFactors() {
+  public List<Factor<E, Subtype>> getFactors() {
     return factors;
   }
 

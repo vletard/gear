@@ -2,12 +2,13 @@ package io.github.vletard.analogy.sequence;
 
 import java.util.List;
 
+import io.github.vletard.analogy.SubtypeRebuilder;
 import io.github.vletard.analogy.sequence.Step;
 
 public class ProportionReadingHead<E>{
   private final SequenceProportion<E> proportion;
   private final int a, b, c, d;
-  private final List<Factor<E>> factors;
+  private final List<Factor<E, Sequence<E>>> factors;
 
   public ProportionReadingHead(SequenceProportion<E> p){
     this.proportion = p;
@@ -37,19 +38,19 @@ public class ProportionReadingHead<E>{
     int c = previous.c;
     int d = previous.d;
     switch (step){
-      case AB : this.factors = Factorizations.extendListB(previous.factors, false, previous.getB());
+      case AB : this.factors = Factorizations.extendListB(previous.factors, false, previous.getB(), SubtypeRebuilder.identity());
                 a += 1;
                 b += 1;
                 break;
-      case AC : this.factors = Factorizations.extendListC(previous.factors, true, previous.getC());
+      case AC : this.factors = Factorizations.extendListC(previous.factors, true, previous.getC(), SubtypeRebuilder.identity());
                 a += 1;
                 c += 1;
                 break;
-      case CD : this.factors = Factorizations.extendListC(previous.factors, false, previous.getC());
+      case CD : this.factors = Factorizations.extendListC(previous.factors, false, previous.getC(), SubtypeRebuilder.identity());
                 c += 1;
                 d += 1;
                 break;
-      case BD : this.factors = Factorizations.extendListB(previous.factors, true, previous.getB());
+      case BD : this.factors = Factorizations.extendListB(previous.factors, true, previous.getB(), SubtypeRebuilder.identity());
                 b += 1;
                 d += 1;
                 break;
@@ -180,7 +181,7 @@ public class ProportionReadingHead<E>{
    * Returns the factorization corresponding to this ProportionReadingHead, for its current state.
    * @return the factorization (list of {@link Factor}) of this ProportionReadingHead.
    */
-  public List<Factor<E>> getFactors() {
+  public List<Factor<E, Sequence<E>>> getFactors() {
     return this.factors;
   }
 }

@@ -57,6 +57,10 @@ public class SequenceEquation<E, Subtype extends Sequence<E>> extends DefaultEqu
     return true;
   }
 
+  public SubtypeRebuilder<Sequence<E>, Subtype> getRebuilder() {
+    return this.rebuilder;
+  }
+
   @Override
   public Iterator<SequenceSolution<E, Subtype>> iterator() {
     if (! SequenceEquation.this.checkCounts())
@@ -85,7 +89,7 @@ public class SequenceEquation<E, Subtype extends Sequence<E>> extends DefaultEqu
               readingRegister.remove(currentDegree);
   
             if (currentHead.isFinished()) {
-              List<Factor<E>> factorList = currentHead.getFactors();
+              List<Factor<E, Subtype>> factorList = currentHead.getFactors();
               Sequence<E> sequence = Factorizations.extractElement(factorList, Element.D);
               this.nextElement = new SequenceSolution<E, Subtype>(SequenceEquation.this.rebuilder.rebuild(sequence), currentDegree, factorList);
             }
