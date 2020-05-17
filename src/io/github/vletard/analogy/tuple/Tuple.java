@@ -82,6 +82,14 @@ public class Tuple<V> implements RecursivelyPrintable, Serializable {
   }
 
   /**
+   * Gets the set of regular keys of this Tuple.
+   * @return the regular key set of this Tuple.
+   */
+  public Set<Object> regularKeys() {
+    return this.items.keySet();
+  }
+
+  /**
    * Gets the set of free keys of this Tuple, that is keys of objects that
    * won't be considered while solving analogical equations.
    * @return the free key set of this Tuple.

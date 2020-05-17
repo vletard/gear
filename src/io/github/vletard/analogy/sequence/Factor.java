@@ -36,6 +36,10 @@ public class Factor<E, T extends Sequence<E>> {
     return this.crossed;
   }
 
+  public Factor<E, T> dual() {
+    return new Factor<E, T>(!this.crossed, this.c.toList(), this.b.toList(), this.rebuilder);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

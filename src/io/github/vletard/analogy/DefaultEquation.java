@@ -37,7 +37,13 @@ public abstract class DefaultEquation<T, S extends Solution<T>> implements Itera
     this.b = b;
     this.c = c;
   }
-
+  
+  /**
+   * Returns the dual analogical equation corresponding to A : C :: B : ?
+   * @return the dual equation.
+   */
+  public abstract DefaultEquation<T, S> dual();
+  
   /**
    * Analyzes the runtime types of the provided items and builds the suitable equation subtype,
    * then returns the created instance as a DefaultEquation.

@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.Element;
+import io.github.vletard.analogy.Solution;
 import io.github.vletard.analogy.SubtypeRebuilder;
 
 /**
@@ -21,7 +22,7 @@ import io.github.vletard.analogy.SubtypeRebuilder;
  *
  * @param <E> The items composing the sequences of the analogical Equation.
  */
-public class SequenceEquation<E, Subtype extends Sequence<E>> extends DefaultEquation<Subtype, SequenceSolution<E, Subtype>>{
+public class SequenceEquation<E, Subtype extends Sequence<E>> extends DefaultEquation<Subtype, Solution<Subtype>>{
 
   private final SubtypeRebuilder<Sequence<E>, Subtype> rebuilder;
   
@@ -61,14 +62,19 @@ public class SequenceEquation<E, Subtype extends Sequence<E>> extends DefaultEqu
   }
 
   @Override
-  public Iterator<SequenceSolution<E, Subtype>> iterator() {
+  public SequenceEquation<E, Subtype> dual() {
+    return new SequenceEquation<E, Subtype>(this.a, this.c, this.b, this.rebuilder);
+  }
+
+  @Override
+  public Iterator<Solution<Subtype>> iterator() {
     if (! SequenceEquation.this.checkCounts())
       return Collections.emptyIterator();
 
     else
-      return new Iterator<SequenceSolution<E, Subtype>>() {
+      return new Iterator<Solution<Subtype>>() {
         private final SortedMap<Integer, Set<EquationReadingHead<E, Subtype>>> readingRegister = new TreeMap<Integer, Set<EquationReadingHead<E, Subtype>>>();
-        private SequenceSolution<E, Subtype> nextElement = null;
+        private Solution<Subtype> nextElement = null;
   
         {
           EquationReadingHead<E, Subtype> head = new EquationReadingHead<E, Subtype>(SequenceEquation.this);
@@ -115,9 +121,9 @@ public class SequenceEquation<E, Subtype extends Sequence<E>> extends DefaultEqu
         }
   
         @Override
-        public SequenceSolution<E, Subtype> next() {
+        public Solution<Subtype> next() {
           if (this.hasNext()) {
-            SequenceSolution<E, Subtype> next = this.nextElement;
+            Solution<Subtype> next = this.nextElement;
             this.nextElement = null;
             return next;
           }

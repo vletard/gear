@@ -20,11 +20,21 @@ public class Factorization<E, S extends Sequence<E>> {
   private final List<Factor<E, S>> factorList;
   private final SubtypeRebuilder<Sequence<E>, S> rebuilder;
   
+  /**
+   * Constructs a new empty factorization.
+   * @param rebuilder The required rebuilder for the used {@link Sequence} subtype.
+   */
   public Factorization(SubtypeRebuilder<Sequence<E>, S> rebuilder) {
     this.factorList = Collections.unmodifiableList(new ArrayList<Factor<E, S>>());
     this.rebuilder = rebuilder;
   }
   
+  /**
+   * Constructs a new factorization with the specified {@link Factor} list.
+   * Factor additions are subject to consistency checks thus this constructor is only for controlled local use.
+   * @param factorList The list of factors for the newly created factorization.
+   * @param rebuilder The required rebuilder for the used {@link Sequence} subtype.
+   */
   private Factorization(List<Factor<E, S>> factorList, SubtypeRebuilder<Sequence<E>, S> rebuilder) {
     this.factorList = Collections.unmodifiableList(new ArrayList<Factor<E, S>>(factorList));
     this.rebuilder = rebuilder;
@@ -82,6 +92,26 @@ public class Factorization<E, S extends Sequence<E>> {
   }
   
   /**
+   * Returns a representation of the specified element of this factorization including factor markings.
+   * @param e The element to be displayed.
+   * @return A representation of the specified element.
+   */
+  public String displayElement(Element e){
+    String str = "";
+    for (int i = 0; i < this.factorList.size(); i++) {
+      Factor<E, S> f = this.factorList.get(i);
+      if (i > 0)
+        str += "|";
+      if ((f.isCrossed() && (e == Element.B || e == Element.D))
+          || (!f.isCrossed() && (e == Element.A || e == Element.B)))
+        str += f.getB();
+      else
+        str += f.getC();
+    }
+    return str;
+  }
+  
+  /**
    * Returns the degree (number of factors) of this factorization.
    * @return The degree of the factorization.
    */
@@ -98,6 +128,17 @@ public class Factorization<E, S extends Sequence<E>> {
     for (Factor<E, S> f: this.factorList)
       size += Math.max(f.getB().concatenate().length(), f.getC().concatenate().length());
     return size;
+  }
+
+  /**
+   * Returns the dual factorization by swapping the means of the analogy.
+   * @return the dual factorization.
+   */
+  public Factorization<E, S> dual() {
+    LinkedList<Factor<E, S>> newFactorList = new LinkedList<Factor<E,S>>();
+    for (Factor<E, S> f: this.factorList)
+      newFactorList.add(f.dual());
+    return new Factorization<E, S>(newFactorList, this.rebuilder);
   }
 
   /**

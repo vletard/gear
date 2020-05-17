@@ -6,7 +6,6 @@ import java.util.HashSet;
 import io.github.vletard.analogy.sequence.Sequence;
 import io.github.vletard.analogy.sequence.SequenceEquation;
 import io.github.vletard.analogy.sequence.SequenceProportion;
-import io.github.vletard.analogy.sequence.SequenceSolution;
 import io.github.vletard.analogy.set.ImmutableSet;
 import io.github.vletard.analogy.set.SimpleSetEquation;
 import io.github.vletard.analogy.tuple.SimpleTupleEquation;
@@ -34,13 +33,14 @@ public class Test {
 
     equation = A + " : " + B + " :: " + C + " : ";
     boolean degreePrintedOut = false;
-    for (SequenceSolution<Character, ?> s:e.nBestDegreeSolutions(1)) {
+    for (Solution<CharacterSequence> s:e.nBestDegreeSolutions(1)) {
       if (!degreePrintedOut) {
         System.out.println("Degree " + s.getDegree() + ":");
         degreePrintedOut = true;
       }
       System.out.println(equation + s.getContent());
-//      System.out.println(Factorizations.toString(s.getFactorization()));
+      System.out.println(s.getRelation().displayStraight());
+      System.out.println(s.getRelation().displayCrossed());
     }
     System.out.println();
     
@@ -71,6 +71,8 @@ public class Test {
     for (Solution<Tuple<CharacterSequence>> s: new SimpleTupleEquation<CharacterSequence>(tA, tB, tC).uniqueSolutions()) {
 //      System.out.println(s.getDegree());
       System.out.println(equation + s.getContent());
+      System.out.println(s.getRelation().displayStraight());
+      System.out.println(s.getRelation().displayCrossed());
     }
     System.out.println();
     
