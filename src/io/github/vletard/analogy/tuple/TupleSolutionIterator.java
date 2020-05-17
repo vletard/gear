@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import io.github.vletard.analogy.DefaultEquation;
+import io.github.vletard.analogy.Relation;
 import io.github.vletard.analogy.Solution;
 import io.github.vletard.analogy.SubtypeRebuilder;
 import io.github.vletard.analogy.util.InvalidParameterException;
@@ -17,9 +18,9 @@ import io.github.vletard.analogy.util.InvalidParameterException;
 public class TupleSolutionIterator<T, Subtype extends Tuple<T>> implements Iterator<Solution<Subtype>> {
 
   /**
-   * Rebuider for a subtype of Tuple if needed (if Tuple is subtyped in another package).
+   * Original equation for this tuple solution iterator. Permits access to the 3 elements and the rebuilder.
    */
-  private final SubtypeRebuilder<Tuple<T>, Subtype> rebuilder;
+  private final TupleEquation<T, Subtype> equation;
   
   /**
    * List defining an order on the tuple equation keys.
@@ -59,27 +60,27 @@ public class TupleSolutionIterator<T, Subtype extends Tuple<T>> implements Itera
    */
   private boolean dueForIncrementation;
 
-  public TupleSolutionIterator(Tuple<T> A, Tuple<T> B, Tuple<T> C, SubtypeRebuilder<Tuple<T>, Subtype> rebuilder){
+  public TupleSolutionIterator(TupleEquation<T, Subtype> equation){
     {
       HashSet<Object> keySet = new HashSet<Object>();
-      keySet.addAll(A.keySet());
-      keySet.addAll(B.keySet());
-      keySet.addAll(C.keySet());
+      keySet.addAll(equation.a.keySet());
+      keySet.addAll(equation.b.keySet());
+      keySet.addAll(equation.c.keySet());
       this.keys = new ArrayList<Object>(keySet); // assigning an arbitrary order to the key set for indexing structures
 
       keySet = new HashSet<Object>();
-      keySet.addAll(A.freeKeys());
-      keySet.addAll(B.freeKeys());
-      keySet.addAll(C.freeKeys());
+      keySet.addAll(equation.a.freeKeys());
+      keySet.addAll(equation.b.freeKeys());
+      keySet.addAll(equation.c.freeKeys());
       this.freeKeys = keySet;
-      this.rebuilder = rebuilder;
+      this.equation = equation;
     }
 
     this.iterators = new ArrayList<Iterator<Solution<T>>>();
     this.partialLists = new ArrayList<ArrayList<Solution<T>>>();
     this.currentIndex = new ArrayList<Integer>();
     for (Object k: this.keys) {
-      Iterator<Solution<T>> it = (Iterator<Solution<T>>) DefaultEquation.factory(A.get(k), B.get(k), C.get(k)).iterator();
+      Iterator<Solution<T>> it = (Iterator<Solution<T>>) DefaultEquation.factory(equation.a.get(k), equation.b.get(k), equation.c.get(k)).iterator();
       this.currentIndex.add(0);
       this.iterators.add(it);
       this.partialLists.add(new ArrayList<Solution<T>>());
@@ -212,23 +213,28 @@ public class TupleSolutionIterator<T, Subtype extends Tuple<T>> implements Itera
   @Override
   public Solution<Subtype> next() {
     if (this.hasNext()) {
-      HashMap<Object, T> regular = new HashMap<Object, T>();
-      HashMap<Object, T> free = new HashMap<Object, T>();
+      HashMap<Object, Solution<T>> regular = new HashMap<Object, Solution<T>>();
+      HashMap<Object, Solution<T>> free = new HashMap<Object, Solution<T>>();
       LinkedList<Integer> degreeList = new LinkedList<Integer>();
+      
+//      HashMap<Object, Relation> regularRelations = new HashMap<Object, Relation>();
+//      HashMap<Object, Relation> freeRelations = new HashMap<Object, Relation>();
       for (int i = 0; i < this.keys.size(); i++) {
         Object k = this.keys.get(i);
         Solution<T> s = this.partialLists.get(i).get(this.currentIndex.get(i));
         if (this.freeKeys.contains(this.keys.get(i))) {
-          free.put(k, s.getContent());
+          free.put(k, s);
           degreeList.add(0);
+//          freeRelations.put(k, s.getRelation());
         } else {
-          regular.put(k, s.getContent());
+          regular.put(k, s);
           degreeList.add(s.getDegree());
+//          regularRelations.put(k, s.getRelation());
         }
       }
       this.dueForIncrementation = true;
       try {
-        return new Solution<Subtype>(this.rebuilder.rebuild(new Tuple<T>(regular, free)), aggregateDegree(degreeList));
+        return new TupleSolution<T, Subtype>(new Tuple<Solution<T>>(regular, free), aggregateDegree(degreeList), this.equation);
       } catch (InvalidParameterException e) {
         throw new RuntimeException("Unexpected exception.", e);
       }

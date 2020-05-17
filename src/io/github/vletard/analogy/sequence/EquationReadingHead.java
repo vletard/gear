@@ -1,23 +1,21 @@
 package io.github.vletard.analogy.sequence;
 
-import java.util.List;
-
-public class EquationReadingHead<E, Subtype extends Sequence<E>>{
-  private final SequenceEquation<E, Subtype> equation;
+public class EquationReadingHead<E, S extends Sequence<E>>{
+  private final SequenceEquation<E, S> equation;
   private final int a, b, c;
-  private final List<Factor<E>> factors;
+  private final Factorization<E, S> factorization;
 
   @Override
   public String toString(){
-    return Factorizations.toString(this.factors);
+    return this.factorization.toString();
   }
 
-  public EquationReadingHead(SequenceEquation<E, Subtype> p){
+  public EquationReadingHead(SequenceEquation<E, S> p){
     this.equation = p;
     this.a = 0;
     this.b = 0;
     this.c = 0;
-    this.factors = Factorizations.newFactorization();
+    this.factorization = new Factorization<E, S>(equation.getRebuilder());
   }
 
   private E getB(){
@@ -28,7 +26,7 @@ public class EquationReadingHead<E, Subtype extends Sequence<E>>{
     return this.equation.c.get(this.c);
   }
 
-  private EquationReadingHead(EquationReadingHead<E, Subtype> eqn, Step step) throws ImpossibleStepException{
+  private EquationReadingHead(EquationReadingHead<E, S> eqn, Step step) throws ImpossibleStepException{
     if (!eqn.canStep(step))
       throw new ImpossibleStepException();
     this.equation = eqn.equation;
@@ -36,18 +34,18 @@ public class EquationReadingHead<E, Subtype extends Sequence<E>>{
     int b = eqn.b;
     int c = eqn.c;
     switch (step){
-    case AB : this.factors = Factorizations.extendListB(eqn.factors, false, eqn.getB());
+    case AB : this.factorization = eqn.factorization.extendListB(false, eqn.getB());
     a += 1;
     b += 1;
     break;
-    case AC : this.factors = Factorizations.extendListC(eqn.factors, true, eqn.getC());
+    case AC : this.factorization = eqn.factorization.extendListC(true, eqn.getC());
     a += 1;
     c += 1;
     break;
-    case CD : this.factors = Factorizations.extendListC(eqn.factors, false, eqn.getC());
+    case CD : this.factorization = eqn.factorization.extendListC(false, eqn.getC());
     c += 1;
     break;
-    case BD : this.factors = Factorizations.extendListB(eqn.factors, true, eqn.getB());
+    case BD : this.factorization = eqn.factorization.extendListB(true, eqn.getB());
     b += 1;
     break;
     default: throw new IllegalArgumentException("A new reading head can only be created with a defined step.");
@@ -89,7 +87,7 @@ public class EquationReadingHead<E, Subtype extends Sequence<E>>{
    * @return The current degree of this EquationReadingHead.
    */
   public int getCurrentDegree() {
-    return this.factors.size();
+    return this.factorization.degree();
   }
 
   /**
@@ -97,8 +95,8 @@ public class EquationReadingHead<E, Subtype extends Sequence<E>>{
    * It contains the solution built up to this state.
    * @return the factorization (list of {@link Factor}) of this EquationReadingHead.
    */
-  public List<Factor<E>> getFactors() {
-    return factors;
+  public Factorization<E, S> getFactorization() {
+    return this.factorization;
   }
 
   /**
@@ -109,11 +107,11 @@ public class EquationReadingHead<E, Subtype extends Sequence<E>>{
    * @return A new reading head after performing the given step.
    * @throws ImpossibleStepException If the step cannot be applied.
    */
-  public EquationReadingHead<E, Subtype> makeStep(Step step, boolean fastForward) throws ImpossibleStepException {
-    EquationReadingHead<E, Subtype> newHead = new EquationReadingHead<E, Subtype>(this, step);
+  public EquationReadingHead<E, S> makeStep(Step step, boolean fastForward) throws ImpossibleStepException {
+    EquationReadingHead<E, S> newHead = new EquationReadingHead<E, S>(this, step);
     if (fastForward) {
       while (newHead.canStep(step) && (step != Step.BD || !newHead.canStep(Step.AB)) && (step != Step.CD || !newHead.canStep(Step.AC)) ) {
-        EquationReadingHead<E, Subtype> fastForwardHead = newHead.makeStep(step, fastForward);
+        EquationReadingHead<E, S> fastForwardHead = newHead.makeStep(step, fastForward);
         if (fastForwardHead.getCurrentDegree() > newHead.getCurrentDegree())
           break;
         else
@@ -131,7 +129,7 @@ public class EquationReadingHead<E, Subtype extends Sequence<E>>{
     result = prime * result + b;
     result = prime * result + c;
     result = prime * result + ((equation == null) ? 0 : equation.hashCode());
-    result = prime * result + ((factors == null) ? 0 : factors.hashCode());
+    result = prime * result + ((factorization == null) ? 0 : factorization.hashCode());
     return result;
   }
 
@@ -156,10 +154,10 @@ public class EquationReadingHead<E, Subtype extends Sequence<E>>{
         return false;
     } else if (!equation.equals(other.equation))
       return false;
-    if (factors == null) {
-      if (other.factors != null)
+    if (factorization == null) {
+      if (other.factorization != null)
         return false;
-    } else if (!factors.equals(other.factors))
+    } else if (!factorization.equals(other.factorization))
       return false;
     return true;
   }

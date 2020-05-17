@@ -1,21 +1,25 @@
 package io.github.vletard.analogy.sequence;
 
-import java.util.List;
-
 import io.github.vletard.analogy.Solution;
 
 public class SequenceSolution<T, Subtype extends Sequence<T>> extends Solution<Subtype> {
 
-  private final List<Factor<T>> factorization;
+  private final Factorization<T, Subtype> factorization;
   // TODO add here recursive information about sub-solutions while implementing sequence analogical recursion
+  private final SequenceRelation<T, Subtype> relation;
 
-  public SequenceSolution(Subtype content, int degree, List<Factor<T>> factorization) {
+  public SequenceSolution(Subtype content, int degree, Factorization<T, Subtype> factorization) {
     super(content, degree);
     this.factorization = factorization;
+    this.relation = new SequenceRelation<T, Subtype>(factorization);
   }
 
-  public List<Factor<T>> getFactorization() {
+  public Factorization<T, Subtype> getFactorization() {
     return factorization;
   }
 
+  @Override
+  public SequenceRelation<T, Subtype> getRelation() {
+    return this.relation;
+  }
 }

@@ -4,13 +4,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Sequence<T> implements Iterable<T>, Serializable {
+public class Sequence<E> implements Iterable<E>, Serializable {
   private static final long serialVersionUID = 7810330061732174873L;
-  private final ArrayList<T> sequence;
+  private final ArrayList<E> sequence;
 
-  public Sequence(Iterable<T> s) {
-    this.sequence = new ArrayList<T>();
-    for (T item: s)
+  public Sequence(Iterable<E> s) {
+    this.sequence = new ArrayList<E>();
+    for (E item: s)
       this.sequence.add(item);
   }
 
@@ -18,12 +18,30 @@ public class Sequence<T> implements Iterable<T>, Serializable {
     return this.sequence.size();
   }
 
-  public T get(int i) {
+  public E get(int i) {
     return this.sequence.get(i);
   }
   
-  public ArrayList<T> toList(){
-    return new ArrayList<T>(this.sequence);
+  public ArrayList<E> toList(){
+    return new ArrayList<E>(this.sequence);
+  }
+
+  public static <E> Sequence<E> concat(Sequence<E> a, Sequence<E> b) {
+    ArrayList<E> sequence = new ArrayList<E>();
+    sequence.addAll(a.sequence);
+    sequence.addAll(b.sequence);
+    return new Sequence<E>(sequence);
+  }
+  
+  /**
+   * Concatenates string expressions of items in this sequence and return the resulting string.
+   * @return The concatenation of the string representation of all the elements in the sequence.
+   */
+  public String concatenate() {
+    String str = "";
+    for (E item: this)
+      str += item.toString();
+    return str;
   }
 
   @Override
@@ -53,7 +71,7 @@ public class Sequence<T> implements Iterable<T>, Serializable {
   }
 
   @Override
-  public Iterator<T> iterator() {
+  public Iterator<E> iterator() {
     return this.sequence.iterator();
   }
   

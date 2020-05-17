@@ -27,16 +27,21 @@ public class AtomicEquation<T> extends DefaultEquation<T, Solution<T>> {
   public Iterator<Solution<T>> iterator(){
     ArrayList<Solution<T>> solution = new ArrayList<Solution<T>>();
     if (this.a == this.b)
-      solution.add(new Solution<T>(this.c, 1));
+      solution.add(new AtomicSolution<T>(this.c, 1, this));
     else if (this.a == this.c)
-      solution.add(new Solution<T>(this.b, 1));
+      solution.add(new AtomicSolution<T>(this.b, 1, this));
     else if (this.a != null) {
       if (this.a.equals(this.b))
-        solution.add(new Solution<T>(this.c, 1));
+        solution.add(new AtomicSolution<T>(this.c, 1, this));
       else if (this.a.equals(this.c))
-        solution.add(new Solution<T>(this.b, 1));
+        solution.add(new AtomicSolution<T>(this.b, 1, this));
     }
     assert(solution.size() <= 1);
     return solution.iterator();
+  }
+
+  @Override
+  public AtomicEquation<T> dual() {
+    return new AtomicEquation<T>(this.a, this.c, this.b);
   }
 }

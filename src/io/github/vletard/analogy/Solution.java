@@ -1,6 +1,6 @@
 package io.github.vletard.analogy;
 
-public class Solution<T> {
+public abstract class Solution<T> {
   private final T content;
   private final int degree;
   
@@ -16,6 +16,8 @@ public class Solution<T> {
   public int getDegree() {
     return this.degree;
   }
+
+  public abstract Relation getRelation();
   
   @Override
   public String toString() {

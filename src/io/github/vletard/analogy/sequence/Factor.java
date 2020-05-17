@@ -1,54 +1,56 @@
 package io.github.vletard.analogy.sequence;
 
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
-public class Factor<E> {
-  private final List<E> B;
-  private final List<E> C;
+import io.github.vletard.analogy.SubtypeRebuilder;
+
+public class Factor<E, T extends Sequence<E>> {
+  private final T b;
+  private final T c;
   private final boolean crossed;
-
-  public Factor(boolean crossed, List<E> B, List<E> C) {
+  private final SubtypeRebuilder<Sequence<E>, T> rebuilder;
+  
+  public Factor(boolean crossed, List<E> b, List<E> c, SubtypeRebuilder<Sequence<E>, T> rebuilder) {
     this.crossed = crossed;
-    this.B = Collections.unmodifiableList(new LinkedList<E>(B));
-    this.C = Collections.unmodifiableList(new LinkedList<E>(C));
+    this.b = rebuilder.rebuild(new Sequence<E>(b));
+    this.c = rebuilder.rebuild(new Sequence<E>(c));
+    this.rebuilder = rebuilder;
   }
 
-  public Factor(Factor<E> factor, List<E> addB, List<E> addC) {
+  public Factor(Factor<E, T> factor, List<E> addB, List<E> addC) {
     this.crossed = factor.isCrossed();
-    List<E> buildB = new LinkedList<E>(factor.B);
-    buildB.addAll(addB);
-    this.B = Collections.unmodifiableList(buildB);
-    
-    List<E> buildC = new LinkedList<E>(factor.C);
-    buildC.addAll(addC);
-    this.C = Collections.unmodifiableList(buildC);
+    this.rebuilder = factor.rebuilder;
+    this.b = this.rebuilder.rebuild(Sequence.concat(factor.b, new Sequence<E>(addB)));
+    this.c = this.rebuilder.rebuild(Sequence.concat(factor.c, new Sequence<E>(addC)));
   }
 
-  public List<E> getB() {
-    return B;
+  public T getB() {
+    return b;
   }
 
-  public List<E> getC() {
-    return C;
+  public T getC() {
+    return c;
   }
   
   public boolean isCrossed() {
     return this.crossed;
   }
 
+  public Factor<E, T> dual() {
+    return new Factor<E, T>(!this.crossed, this.c.toList(), this.b.toList(), this.rebuilder);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((B == null) ? 0 : B.hashCode());
-    result = prime * result + ((C == null) ? 0 : C.hashCode());
+    result = prime * result + ((b == null) ? 0 : b.hashCode());
+    result = prime * result + ((c == null) ? 0 : c.hashCode());
     result = prime * result + (crossed ? 1231 : 1237);
     return result;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -57,16 +59,16 @@ public class Factor<E> {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    Factor<E> other = (Factor<E>) obj;
-    if (B == null) {
-      if (other.B != null)
+    Factor other = (Factor) obj;
+    if (b == null) {
+      if (other.b != null)
         return false;
-    } else if (!B.equals(other.B))
+    } else if (!b.equals(other.b))
       return false;
-    if (C == null) {
-      if (other.C != null)
+    if (c == null) {
+      if (other.c != null)
         return false;
-    } else if (!C.equals(other.C))
+    } else if (!c.equals(other.c))
       return false;
     if (crossed != other.crossed)
       return false;
