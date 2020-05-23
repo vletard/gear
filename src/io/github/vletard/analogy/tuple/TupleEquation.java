@@ -5,18 +5,17 @@ import java.util.Iterator;
 
 import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.Solution;
-import io.github.vletard.analogy.SubtypeRebuilder;
 
 public class TupleEquation<T, Subtype extends Tuple<T>> extends DefaultEquation<Subtype, Solution<Subtype>> {
 
-  private final SubtypeRebuilder<Tuple<T>, Subtype> rebuilder;
+  private final SubTupleRebuilder<T, Subtype> rebuilder;
   
-  public TupleEquation(Subtype a, Subtype b, Subtype c, SubtypeRebuilder<Tuple<T>, Subtype> rebuilder) {
+  public TupleEquation(Subtype a, Subtype b, Subtype c, SubTupleRebuilder<T, Subtype> rebuilder) {
     super(a, b, c);
     this.rebuilder = rebuilder;
   }
 
-  protected SubtypeRebuilder<Tuple<T>, Subtype> getRebuilder() {
+  protected SubTupleRebuilder<T, Subtype> getRebuilder() {
     return this.rebuilder;
   }
 

@@ -80,7 +80,8 @@ public class TupleSolutionIterator<T, Subtype extends Tuple<T>> implements Itera
     this.partialLists = new ArrayList<ArrayList<Solution<T>>>();
     this.currentIndex = new ArrayList<Integer>();
     for (Object k: this.keys) {
-      Iterator<Solution<T>> it = (Iterator<Solution<T>>) DefaultEquation.factory(equation.a.get(k), equation.b.get(k), equation.c.get(k)).iterator();
+      Iterator<Solution<T>> it = (Iterator<Solution<T>>) DefaultEquation.factory(this.equation.a.get(k), 
+          this.equation.b.get(k), this.equation.c.get(k), this.equation.getRebuilder().get(k)).iterator();
       this.currentIndex.add(0);
       this.iterators.add(it);
       this.partialLists.add(new ArrayList<Solution<T>>());

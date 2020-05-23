@@ -43,7 +43,7 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
   public String displayStraight() {
     String str = "<";
     boolean first = true;
-    for (Object key: this.keySet()) {
+    for (Object key: this.regularKeys()) {
       if (first)
         first = false;
       else

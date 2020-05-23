@@ -5,11 +5,15 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import io.github.vletard.analogy.sequence.Sequence;
+import io.github.vletard.analogy.sequence.SequenceEquation;
 import io.github.vletard.analogy.sequence.SimpleSequenceEquation;
 import io.github.vletard.analogy.set.ImmutableSet;
+import io.github.vletard.analogy.set.SetEquation;
 import io.github.vletard.analogy.set.SimpleSetEquation;
 import io.github.vletard.analogy.tuple.SimpleTupleEquation;
+import io.github.vletard.analogy.tuple.SubTupleRebuilder;
 import io.github.vletard.analogy.tuple.Tuple;
+import io.github.vletard.analogy.tuple.TupleEquation;
 
 /**
  * This abstract class gives the basis for the behaviour of an analogical equation.
@@ -55,12 +59,22 @@ public abstract class DefaultEquation<T, S extends Solution<T>> implements Itera
    */
   public static <E> DefaultEquation<E, ? extends Solution<E>> factory(E a, E b, E c) {
     if (a instanceof ImmutableSet && b instanceof ImmutableSet && c instanceof ImmutableSet) {
-      ImmutableSet<Object> setA;
       return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new SimpleSetEquation<Object>((ImmutableSet<Object>) a, (ImmutableSet<Object>) b, (ImmutableSet<Object>) c);
     } else if (a instanceof Tuple && b instanceof Tuple && c instanceof Tuple)
       return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new SimpleTupleEquation<Object>((Tuple<Object>) a, (Tuple<Object>) b, (Tuple<Object>) c);
     else if (a instanceof Sequence && b instanceof Sequence && c instanceof Sequence)
       return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new SimpleSequenceEquation<Object>((Sequence<Object>) a, (Sequence<Object>) b, (Sequence<Object>) c);
+    else
+      return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new AtomicEquation<Object>(a, b, c);
+  }
+  
+  public static <E, T extends E> DefaultEquation<E, ? extends Solution<E>> factory(E a, E b, E c, SubtypeRebuilder<E, T> rebuilder) {
+    if (a instanceof ImmutableSet && b instanceof ImmutableSet && c instanceof ImmutableSet) {
+      return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new SetEquation<Object, ImmutableSet<Object>>((ImmutableSet<Object>) a, (ImmutableSet<Object>) b, (ImmutableSet<Object>) c, (SubtypeRebuilder<ImmutableSet<Object>, ImmutableSet<Object>>) rebuilder);
+    } else if (a instanceof Tuple && b instanceof Tuple && c instanceof Tuple && rebuilder instanceof SubTupleRebuilder)
+      return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new TupleEquation<Object, Tuple<Object>>((Tuple<Object>) a, (Tuple<Object>) b, (Tuple<Object>) c, (SubTupleRebuilder<Object, Tuple<Object>>) rebuilder);
+    else if (a instanceof Sequence && b instanceof Sequence && c instanceof Sequence)
+      return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new SequenceEquation<Object, Sequence<Object>>((Sequence<Object>) a, (Sequence<Object>) b, (Sequence<Object>) c, (SubtypeRebuilder<Sequence<Object>, Sequence<Object>>) rebuilder);
     else
       return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new AtomicEquation<Object>(a, b, c);
   }

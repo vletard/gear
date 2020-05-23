@@ -18,7 +18,7 @@ import io.github.vletard.analogy.tuple.Tuple;
  * @param <Type> base type to rebuild from (typically {@link Sequence}, {@link Tuple} or {@link ImmutableSet}).
  * @param <Subtype> subtype to be rebuilt.
  */
-public abstract class SubtypeRebuilder<Type, Subtype> {
+public abstract class SubtypeRebuilder<Type, Subtype extends Type> {
   public abstract Subtype rebuild(Type object);
   
   public static <T> SubtypeRebuilder<T, T> identity() {
