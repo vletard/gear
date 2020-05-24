@@ -39,25 +39,25 @@ public class SetRelation<Item, Subtype extends ImmutableSet<Item>> implements Re
 
   @Override
   public String displayStraight() {
-    String output = "";
+    String output = "[";
 
     for (Item i: this.straightAdd)
       output += " +" + i;
     for (Item i: this.straightRemove)
       output += " -" + i;
     
-    return output;
+    return output + "]";
   }
 
   @Override
   public String displayCrossed() {
-    String output = "";
+    String output = "[";
 
     for (Item i: this.crossedAdd)
       output += " +" + i;
     for (Item i: this.crossedRemove)
       output += " -" + i;
     
-    return output;
+    return output + "]";
   }
 }
