@@ -1,10 +1,7 @@
 package io.github.vletard.analogy.tuple;
 
 import java.util.HashMap;
-import java.util.Map;
-
 import io.github.vletard.analogy.Relation;
-import io.github.vletard.analogy.Solution;
 import io.github.vletard.analogy.util.InvalidParameterException;
 
 public class TupleRelation extends Tuple<Relation> implements Relation {
@@ -15,21 +12,21 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
     super(extractRegular(solution), extractFree(solution));
     this.solution = solution;
   }
-  
+
   private static HashMap<?, ? extends Relation> extractRegular(TupleSolution<?, ?> solution) {
     HashMap<Object, Relation> map = new HashMap<Object, Relation>();
     for (Object key: solution.getSubSolutions().regularKeys())
       map.put(key, solution.getSubSolutions().get(key).getRelation());
     return map;
   }
-  
+
   private static HashMap<?, ? extends Relation> extractFree(TupleSolution<?, ?> solution) {
     HashMap<Object, Relation> map = new HashMap<Object, Relation>();
     for (Object key: solution.getSubSolutions().freeKeys())
       map.put(key, solution.getSubSolutions().get(key).getRelation());
     return map;
   }
-  
+
   @Override
   public TupleRelation dual() {
     try {
@@ -51,14 +48,17 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
       str += this.get(key).displayStraight();
     }
 
-    str += " / ";
-    first = true;
-    for (Object key: this.freeKeys()) {
-      if (first)
-        first = false;
-      else
-        str += ", ";
-      str += this.get(key).displayStraight();
+
+    if (this.freeKeys().size() > 0) {
+      str += " / ";
+      first = true;
+      for (Object key: this.freeKeys()) {
+        if (first)
+          first = false;
+        else
+          str += ", ";
+        str += this.get(key).displayStraight();
+      }
     }
     return str + ">";
   }
@@ -75,14 +75,16 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
       str += this.get(key).displayCrossed();
     }
 
-    str += " / ";
-    first = true;
-    for (Object key: this.freeKeys()) {
-      if (first)
-        first = false;
-      else
-        str += ", ";
-      str += this.get(key).displayCrossed();
+    if (this.freeKeys().size() > 0) {
+      str += " / ";
+      first = true;
+      for (Object key: this.freeKeys()) {
+        if (first)
+          first = false;
+        else
+          str += ", ";
+        str += this.get(key).displayCrossed();
+      }
     }
     return str + ">";
   }
