@@ -45,7 +45,7 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
         first = false;
       else
         str += ", ";
-      str += this.get(key).displayStraight();
+      str += key + "=" + this.get(key).displayStraight();
     }
 
 
@@ -57,7 +57,7 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
           first = false;
         else
           str += ", ";
-        str += this.get(key).displayStraight();
+        str += key + "=" + this.get(key).displayStraight();
       }
     }
     return str + ">";
