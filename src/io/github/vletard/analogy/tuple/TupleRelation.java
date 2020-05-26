@@ -67,12 +67,12 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
   public String displayCrossed() {
     String str = "<";
     boolean first = true;
-    for (Object key: this.keySet()) {
+    for (Object key: this.regularKeys()) {
       if (first)
         first = false;
       else
         str += ", ";
-      str += this.get(key).displayCrossed();
+      str += key + "=" + this.get(key).displayCrossed();
     }
 
     if (this.freeKeys().size() > 0) {
@@ -83,7 +83,7 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
           first = false;
         else
           str += ", ";
-        str += this.get(key).displayCrossed();
+        str += key + "=" + this.get(key).displayCrossed();
       }
     }
     return str + ">";
