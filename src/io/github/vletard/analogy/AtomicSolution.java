@@ -5,7 +5,7 @@ public class AtomicSolution<T> extends Solution<T> {
   
   public AtomicSolution(T content, int degree, AtomicEquation<T> equation) {
     super(content, degree);
-    this.relation = new AtomicRelation(equation, content.equals(equation.b));
+    this.relation = new AtomicRelation(equation);
   }
 
   @Override

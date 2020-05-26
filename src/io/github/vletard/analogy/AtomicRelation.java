@@ -1,41 +1,44 @@
 package io.github.vletard.analogy;
 
 public class AtomicRelation implements Relation {
-  private final boolean crossed;
   private final AtomicEquation<?> equation;
 
-  public AtomicRelation(AtomicEquation<?> equation, boolean crossed) {
-    this.crossed = crossed;
+  public AtomicRelation(AtomicEquation<?> equation) {
     this.equation = equation;
   }
-  
+
   @Override
   public AtomicRelation dual() {
-    return new AtomicRelation(this.equation, !this.crossed);
+    return new AtomicRelation(this.equation.dual());
   }
-  
+
   @Override
   public String toString() {
-    String output = this.equation.a.toString() + " -> ";
-    if (this.crossed)
-      return output + this.equation.b.toString();
+    String output = "";
+    if (! this.equation.b.equals(this.equation.a))
+      output = this.equation.b.toString();
+    if (! this.equation.c.equals(this.equation.a))
+      output = this.equation.c.toString();
+
+    if (!output.contentEquals(""))
+      return this.equation.a.toString() + " -> " + output;
     else
-      return output + this.equation.c.toString();
+      return "identity";
   }
 
   @Override
   public String displayStraight() {
-    if (this.crossed)
-      return "id";
+    if (this.equation.b.equals(this.equation.a))
+      return "identity";
     else
       return this.equation.a + " -> " + this.equation.b;
   }
 
   @Override
   public String displayCrossed() {
-    if (this.crossed)
-      return this.equation.a + " -> " + this.equation.c;
+    if (this.equation.c.equals(this.equation.a))
+      return "identity";
     else
-      return "id";
+      return this.equation.a + " -> " + this.equation.c;
   }
 }
