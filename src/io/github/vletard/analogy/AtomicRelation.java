@@ -41,4 +41,14 @@ public class AtomicRelation implements Relation {
     else
       return this.equation.a + " -> " + this.equation.c;
   }
+
+  @Override
+  public boolean isIdentityStraight() {
+    return this.equation.b.equals(this.equation.a);
+  }
+
+  @Override
+  public boolean isIdentityCrossed() {
+    return this.equation.c.equals(this.equation.a);
+  }
 }

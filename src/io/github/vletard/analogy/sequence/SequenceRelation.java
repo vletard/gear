@@ -29,4 +29,14 @@ public class SequenceRelation<E, S extends Sequence<E>> implements Relation {
   public String toString() {
     return this.displayStraight() + "\n" + this.displayCrossed();
   }
+
+  @Override
+  public boolean isIdentityStraight() {
+    return this.factorization.extractElement(Element.A).equals(this.factorization.extractElement(Element.B));
+  }
+
+  @Override
+  public boolean isIdentityCrossed() {
+    return this.factorization.extractElement(Element.A).equals(this.factorization.extractElement(Element.C));
+  }
 }

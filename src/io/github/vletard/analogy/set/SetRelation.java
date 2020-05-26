@@ -60,4 +60,14 @@ public class SetRelation<Item, Subtype extends ImmutableSet<Item>> implements Re
     
     return output + "]";
   }
+
+  @Override
+  public boolean isIdentityStraight() {
+    return this.straightAdd.isEmpty() && this.straightRemove.isEmpty();
+  }
+
+  @Override
+  public boolean isIdentityCrossed() {
+    return this.crossedAdd.isEmpty() && this.crossedRemove.isEmpty();
+  }
 }

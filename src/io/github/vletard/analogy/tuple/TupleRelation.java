@@ -41,11 +41,13 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
     String str = "<";
     boolean first = true;
     for (Object key: this.regularKeys()) {
-      if (first)
-        first = false;
-      else
-        str += ", ";
-      str += key + "=" + this.get(key).displayStraight();
+      if (! this.get(key).isIdentityStraight()) {
+        if (first)
+          first = false;
+        else
+          str += ", ";
+        str += key + "=" + this.get(key).displayStraight();
+      }
     }
 
 
@@ -53,11 +55,13 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
       str += " / ";
       first = true;
       for (Object key: this.freeKeys()) {
-        if (first)
-          first = false;
-        else
-          str += ", ";
-        str += key + "=" + this.get(key).displayStraight();
+        if (! this.get(key).isIdentityStraight()) {
+          if (first)
+            first = false;
+          else
+            str += ", ";
+          str += key + "=" + this.get(key).displayStraight();
+        }
       }
     }
     return str + ">";
@@ -68,17 +72,7 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
     String str = "<";
     boolean first = true;
     for (Object key: this.regularKeys()) {
-      if (first)
-        first = false;
-      else
-        str += ", ";
-      str += key + "=" + this.get(key).displayCrossed();
-    }
-
-    if (this.freeKeys().size() > 0) {
-      str += " / ";
-      first = true;
-      for (Object key: this.freeKeys()) {
+      if (! this.get(key).isIdentityCrossed()) {
         if (first)
           first = false;
         else
@@ -86,6 +80,38 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
         str += key + "=" + this.get(key).displayCrossed();
       }
     }
+
+    if (this.freeKeys().size() > 0) {
+      str += " / ";
+      first = true;
+      for (Object key: this.freeKeys()) {
+        if (! this.get(key).isIdentityCrossed()) {
+          if (first)
+            first = false;
+          else
+            str += ", ";
+          str += key + "=" + this.get(key).displayCrossed();
+        }
+      }
+    }
     return str + ">";
+  }
+
+  @Override
+  public boolean isIdentityStraight() {
+    for (Object k: this.keySet()) {
+      if (!this.get(k).isIdentityStraight())
+        return false;
+    }
+    return true;
+  }
+
+  @Override
+  public boolean isIdentityCrossed() {
+    for (Object k: this.keySet()) {
+      if (!this.get(k).isIdentityCrossed())
+        return false;
+    }
+    return true;
   }
 }
