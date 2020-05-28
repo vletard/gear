@@ -1,83 +1,63 @@
 package io.github.vletard.analogy.tuple;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import io.github.vletard.analogy.Relation;
 import io.github.vletard.analogy.util.InvalidParameterException;
 
 public class TupleRelation extends Tuple<Relation> implements Relation {
   private static final long serialVersionUID = 5416368724720335976L;
-  private final TupleSolution<?, ?> solution;
+//  private final TupleSolution<?, ?> solution;
+//  private final boolean crossed;
 
-  public TupleRelation(TupleSolution<?, ?> solution) throws InvalidParameterException {
-    super(extractRegular(solution), extractFree(solution));
-    this.solution = solution;
+  private TupleRelation(Map<Object, Relation> regularMap, Map<Object, Relation> freeMap) throws InvalidParameterException {
+    super(regularMap, freeMap);
   }
 
-  private static HashMap<?, ? extends Relation> extractRegular(TupleSolution<?, ?> solution) {
-    HashMap<Object, Relation> map = new HashMap<Object, Relation>();
+  public static TupleRelation newStraightRelation(TupleSolution<?, ?> solution) {
+    Map<Object, Relation> regularMap = new HashMap<Object, Relation>();
     for (Object key: solution.getSubSolutions().regularKeys())
-      map.put(key, solution.getSubSolutions().get(key).getRelation());
-    return map;
-  }
+      regularMap.put(key, solution.getSubSolutions().get(key).getStraightRelation());
 
-  private static HashMap<?, ? extends Relation> extractFree(TupleSolution<?, ?> solution) {
-    HashMap<Object, Relation> map = new HashMap<Object, Relation>();
+    Map<Object, Relation> freeMap = new HashMap<Object, Relation>();
     for (Object key: solution.getSubSolutions().freeKeys())
-      map.put(key, solution.getSubSolutions().get(key).getRelation());
-    return map;
+      freeMap.put(key, solution.getSubSolutions().get(key).getStraightRelation());
+    
+    try {
+      return new TupleRelation(regularMap, freeMap);
+    } catch (InvalidParameterException e) {
+      throw new RuntimeException("Unexpected exception.", e);
+    }
   }
 
-  @Override
-  public TupleRelation dual() {
+  public static TupleRelation newCrossedRelation(TupleSolution<?, ?> solution) {
+    Map<Object, Relation> regularMap = new HashMap<Object, Relation>();
+    for (Object key: solution.getSubSolutions().regularKeys())
+      regularMap.put(key, solution.getSubSolutions().get(key).getCrossedRelation());
+
+    Map<Object, Relation> freeMap = new HashMap<Object, Relation>();
+    for (Object key: solution.getSubSolutions().freeKeys())
+      freeMap.put(key, solution.getSubSolutions().get(key).getCrossedRelation());
+    
     try {
-      return new TupleRelation(this.solution.dual());
+      return new TupleRelation(regularMap, freeMap);
     } catch (InvalidParameterException e) {
       throw new RuntimeException("Unexpected exception.", e);
     }
   }
 
   @Override
-  public String displayStraight() {
+  public String toString() {
     String str = "<";
     boolean first = true;
     for (Object key: this.regularKeys()) {
-      if (! this.get(key).isIdentityStraight()) {
+      if (! this.get(key).isIdentity()) {
         if (first)
           first = false;
         else
           str += ", ";
-        str += key + "=" + this.get(key).displayStraight();
-      }
-    }
-
-
-    if (this.freeKeys().size() > 0) {
-      str += " / ";
-      first = true;
-      for (Object key: this.freeKeys()) {
-        if (! this.get(key).isIdentityStraight()) {
-          if (first)
-            first = false;
-          else
-            str += ", ";
-          str += key + "=" + this.get(key).displayStraight();
-        }
-      }
-    }
-    return str + ">";
-  }
-
-  @Override
-  public String displayCrossed() {
-    String str = "<";
-    boolean first = true;
-    for (Object key: this.regularKeys()) {
-      if (! this.get(key).isIdentityCrossed()) {
-        if (first)
-          first = false;
-        else
-          str += ", ";
-        str += key + "=" + this.get(key).displayCrossed();
+        str += key + "=" + this.get(key);
       }
     }
 
@@ -85,12 +65,12 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
       str += " / ";
       first = true;
       for (Object key: this.freeKeys()) {
-        if (! this.get(key).isIdentityCrossed()) {
+        if (! this.get(key).isIdentity()) {
           if (first)
             first = false;
           else
             str += ", ";
-          str += key + "=" + this.get(key).displayCrossed();
+          str += key + "=" + this.get(key);
         }
       }
     }
@@ -98,18 +78,9 @@ public class TupleRelation extends Tuple<Relation> implements Relation {
   }
 
   @Override
-  public boolean isIdentityStraight() {
+  public boolean isIdentity() {
     for (Object k: this.keySet()) {
-      if (!this.get(k).isIdentityStraight())
-        return false;
-    }
-    return true;
-  }
-
-  @Override
-  public boolean isIdentityCrossed() {
-    for (Object k: this.keySet()) {
-      if (!this.get(k).isIdentityCrossed())
+      if (!this.get(k).isIdentity())
         return false;
     }
     return true;

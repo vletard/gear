@@ -5,38 +5,35 @@ import io.github.vletard.analogy.Relation;
 
 public class SequenceRelation<E, S extends Sequence<E>> implements Relation {
   private final Factorization<E, S> factorization;
+  private final boolean crossed;
 
-  public SequenceRelation(Factorization<E, S> factorization) {
+  private SequenceRelation(Factorization<E, S> factorization, boolean crossed) {
     this.factorization = factorization;
+    this.crossed = crossed;
+  }
+  
+  public static <E, S extends Sequence<E>> SequenceRelation<E, S> newStraightRelation(Factorization<E, S> factorization) {
+    return new SequenceRelation<E, S>(factorization, false);
+  }
+  
+  public static <E, S extends Sequence<E>> SequenceRelation<E, S> newCrossedRelation(Factorization<E, S> factorization) {
+    return new SequenceRelation<E, S>(factorization, true);
   }
 
   @Override
-  public Relation dual() {
-    return new SequenceRelation<E, S>(this.factorization.dual());
-  }
-
-  @Override
-  public String displayStraight() {
-    return this.factorization.displayElement(Element.A) + " -> " + this.factorization.displayElement(Element.B);
-  }
-
-  @Override
-  public String displayCrossed() {
-    return this.factorization.displayElement(Element.A) + " -> " + this.factorization.displayElement(Element.C);
+  public String toString() {
+    String output = this.factorization.displayElement(Element.A) + " -> ";
+    if (this.crossed)
+      return output + this.factorization.displayElement(Element.C);
+    else
+      return output + this.factorization.displayElement(Element.B);
   }
   
   @Override
-  public String toString() {
-    return this.displayStraight() + "\n" + this.displayCrossed();
-  }
-
-  @Override
-  public boolean isIdentityStraight() {
-    return this.factorization.extractElement(Element.A).equals(this.factorization.extractElement(Element.B));
-  }
-
-  @Override
-  public boolean isIdentityCrossed() {
-    return this.factorization.extractElement(Element.A).equals(this.factorization.extractElement(Element.C));
+  public boolean isIdentity() {
+    if (this.crossed)
+      return this.factorization.extractElement(Element.A).equals(this.factorization.extractElement(Element.C));
+    else
+      return this.factorization.extractElement(Element.A).equals(this.factorization.extractElement(Element.B));
   }
 }

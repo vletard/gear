@@ -17,7 +17,8 @@ public abstract class Solution<T> {
     return this.degree;
   }
 
-  public abstract Relation getRelation();
+  public abstract Relation getStraightRelation();
+  public abstract Relation getCrossedRelation();
   
   @Override
   public String toString() {

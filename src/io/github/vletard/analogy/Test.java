@@ -43,8 +43,8 @@ public class Test {
         degreePrintedOut = true;
       }
       System.out.println(equation + s.getContent());
-      System.out.println(s.getRelation().displayStraight());
-      System.out.println(s.getRelation().displayCrossed());
+      System.out.println(s.getStraightRelation());
+      System.out.println(s.getCrossedRelation());
     }
     System.out.println();
     
@@ -82,8 +82,8 @@ public class Test {
     for (Solution<Tuple<Sequence<Character>>> s: new TupleEquation<Sequence<Character>, Tuple<Sequence<Character>>>(tA, tB, tC, tupleRebuilder).uniqueSolutions()) {
 //      System.out.println(s.getDegree());
       System.out.println(equation + s.getContent());
-      System.out.println(s.getRelation().displayStraight());
-      System.out.println(s.getRelation().displayCrossed());
+      System.out.println(s.getStraightRelation());
+      System.out.println(s.getCrossedRelation());
     }
     System.out.println();
     
