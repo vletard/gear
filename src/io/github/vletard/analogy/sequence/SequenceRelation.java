@@ -22,6 +22,9 @@ public class SequenceRelation<E, S extends Sequence<E>> implements Relation {
 
   @Override
   public String toString() {
+    if (this.isIdentity())
+      return "identity";
+    
     String output = this.factorization.displayElement(Element.A) + " -> ";
     if (this.crossed)
       return output + this.factorization.displayElement(Element.C);
@@ -35,5 +38,26 @@ public class SequenceRelation<E, S extends Sequence<E>> implements Relation {
       return this.factorization.extractElement(Element.A).equals(this.factorization.extractElement(Element.C));
     else
       return this.factorization.extractElement(Element.A).equals(this.factorization.extractElement(Element.B));
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + this.toString().hashCode();
+    return result;
+  }
+
+  @SuppressWarnings("rawtypes")
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    SequenceRelation other = (SequenceRelation) obj;
+    return this.toString().contentEquals(other.toString());
   }
 }

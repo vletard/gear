@@ -8,8 +8,6 @@ import io.github.vletard.analogy.util.InvalidParameterException;
 
 public class TupleRelation extends Tuple<Relation> implements Relation {
   private static final long serialVersionUID = 5416368724720335976L;
-//  private final TupleSolution<?, ?> solution;
-//  private final boolean crossed;
 
   private TupleRelation(Map<Object, Relation> regularMap, Map<Object, Relation> freeMap) throws InvalidParameterException {
     super(regularMap, freeMap);
