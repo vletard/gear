@@ -68,7 +68,7 @@ public abstract class DefaultEquation<T, S extends Solution<T>> implements Itera
       return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new AtomicEquation<Object>(a, b, c);
   }
   
-  public static <E, T extends E> DefaultEquation<E, ? extends Solution<E>> factory(E a, E b, E c, SubtypeRebuilder<?, ?> rebuilder) {
+  public static <E, T extends E> DefaultEquation<E, ? extends Solution<E>> factory(E a, E b, E c, SubtypeRebuilder<?, ?> rebuilder) { // TODO check whether the rebuilder type matches the objects types and emit a warning if not
     if (a instanceof ImmutableSet && b instanceof ImmutableSet && c instanceof ImmutableSet) {
       return (DefaultEquation<E, ? extends Solution<E>>)(DefaultEquation<?, ? extends Solution<?>>) new SetEquation<Object, ImmutableSet<Object>>((ImmutableSet<Object>) a, (ImmutableSet<Object>) b, (ImmutableSet<Object>) c, (SubtypeRebuilder<ImmutableSet<Object>, ImmutableSet<Object>>) rebuilder);
     } else if (a instanceof Tuple && b instanceof Tuple && c instanceof Tuple && rebuilder instanceof SubTupleRebuilder)
