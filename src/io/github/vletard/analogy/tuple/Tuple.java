@@ -137,7 +137,7 @@ public class Tuple<V> implements RecursivelyPrintable, Serializable {
     for (Object k: complexKeys)
       output += writeOffset(offset+1) + k + "=" + this.get(k) + ",\n";
 
-    output = output.substring(0, output.length()-2) + "\n";
+    output = output.substring(0, Math.max(0, output.length()-2)) + "\n";
 
     return output;
   }
