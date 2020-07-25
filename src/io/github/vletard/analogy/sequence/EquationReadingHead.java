@@ -1,5 +1,7 @@
 package io.github.vletard.analogy.sequence;
 
+import io.github.vletard.analogy.RebuildException;
+
 public class EquationReadingHead<E, S extends Sequence<E>>{
   private final SequenceEquation<E, S> equation;
   private final int a, b, c;
@@ -26,7 +28,7 @@ public class EquationReadingHead<E, S extends Sequence<E>>{
     return this.equation.c.get(this.c);
   }
 
-  private EquationReadingHead(EquationReadingHead<E, S> eqn, Step step) throws ImpossibleStepException{
+  private EquationReadingHead(EquationReadingHead<E, S> eqn, Step step) throws ImpossibleStepException, RebuildException{
     if (!eqn.canStep(step))
       throw new ImpossibleStepException();
     this.equation = eqn.equation;
@@ -106,8 +108,9 @@ public class EquationReadingHead<E, S extends Sequence<E>>{
    * @param fastForward Whether to automatically repeat the same step as far as possible (keeping the same degree).  
    * @return A new reading head after performing the given step.
    * @throws ImpossibleStepException If the step cannot be applied.
+   * @throws RebuildException 
    */
-  public EquationReadingHead<E, S> makeStep(Step step, boolean fastForward) throws ImpossibleStepException {
+  public EquationReadingHead<E, S> makeStep(Step step, boolean fastForward) throws ImpossibleStepException, RebuildException {
     EquationReadingHead<E, S> newHead = new EquationReadingHead<E, S>(this, step);
     if (fastForward) {
       while (newHead.canStep(step) && (step != Step.BD || !newHead.canStep(Step.AB)) && (step != Step.CD || !newHead.canStep(Step.AC)) ) {

@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import io.github.vletard.analogy.Element;
+import io.github.vletard.analogy.RebuildException;
 import io.github.vletard.analogy.SubtypeRebuilder;
 
 /**
@@ -39,7 +40,7 @@ public class Factorization<E, S extends Sequence<E>> {
     this.factorList = Collections.unmodifiableList(new ArrayList<Factor<E, S>>(factorList));
     this.rebuilder = rebuilder;
   }
-  
+
   /**
    * Extends this factorization with the provided item on B and D if crossed is true,
    * on A and B otherwise.
@@ -47,8 +48,9 @@ public class Factorization<E, S extends Sequence<E>> {
    * @param crossed Whether the new item should be added as crossed factor or not (see {@link Factor}).
    * @param item Item to be added for extension.
    * @return An immutable extension of this factorization with the provided item.
+   * @throws RebuildException 
    */
-  public Factorization<E, S> extendListB(boolean crossed, E item) {
+  public Factorization<E, S> extendListB(boolean crossed, E item) throws RebuildException {
     LinkedList<Factor<E, S>> newList = new LinkedList<Factor<E, S>>(this.factorList);
     if (newList.isEmpty() || newList.getLast().isCrossed() != crossed)
       newList.add(new Factor<E, S>(crossed, Collections.singletonList(item), Collections.emptyList(), this.rebuilder));
@@ -64,11 +66,12 @@ public class Factorization<E, S extends Sequence<E>> {
    * @param crossed Whether the new item should be added as crossed factor or not (see {@link Factor}).
    * @param item Item to be added for extension.
    * @return An immutable extension of this factorization with the provided item.
+   * @throws RebuildException 
    */
-  public Factorization<E, S> extendListC(boolean crossed, E item) {
+  public Factorization<E, S> extendListC(boolean crossed, E item) throws RebuildException {
     LinkedList<Factor<E, S>> newList = new LinkedList<Factor<E, S>>(this.factorList);
     if (newList.isEmpty() || newList.getLast().isCrossed() != crossed)
-      newList.add(new Factor<E, S>(crossed, Collections.emptyList(), Collections.singletonList(item), rebuilder));
+      newList.add(new Factor<E, S>(crossed, Collections.emptyList(), Collections.singletonList(item), this.rebuilder));
     else
       newList.add(new Factor<E, S>(newList.removeLast(), Collections.emptyList(), Collections.singletonList(item)));
     return new Factorization<E, S>(newList, this.rebuilder);
@@ -133,8 +136,9 @@ public class Factorization<E, S extends Sequence<E>> {
   /**
    * Returns the dual factorization by swapping the means of the analogy.
    * @return the dual factorization.
+   * @throws RebuildException 
    */
-  public Factorization<E, S> dual() {
+  public Factorization<E, S> dual() throws RebuildException {
     LinkedList<Factor<E, S>> newFactorList = new LinkedList<Factor<E,S>>();
     for (Factor<E, S> f: this.factorList)
       newFactorList.add(f.dual());

@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.Element;
+import io.github.vletard.analogy.RebuildException;
 import io.github.vletard.analogy.Solution;
 import io.github.vletard.analogy.SubtypeRebuilder;
 
@@ -25,7 +26,7 @@ import io.github.vletard.analogy.SubtypeRebuilder;
 public class SequenceEquation<E, Subtype extends Sequence<E>> extends DefaultEquation<Subtype, Solution<Subtype>>{
 
   private final SubtypeRebuilder<Sequence<E>, Subtype> rebuilder;
-  
+
   public SequenceEquation(Subtype a, Subtype b, Subtype c, SubtypeRebuilder<Sequence<E>, Subtype> rebuilder){
     super(a, b, c);
     this.rebuilder = rebuilder;
@@ -73,63 +74,71 @@ public class SequenceEquation<E, Subtype extends Sequence<E>> extends DefaultEqu
 
     else
       return new Iterator<Solution<Subtype>>() {
-        private final SortedMap<Integer, Set<EquationReadingHead<E, Subtype>>> readingRegister = new TreeMap<Integer, Set<EquationReadingHead<E, Subtype>>>();
-        private Solution<Subtype> nextElement = null;
-  
-        {
-          EquationReadingHead<E, Subtype> head = new EquationReadingHead<E, Subtype>(SequenceEquation.this);
-          Set<EquationReadingHead<E, Subtype>> s = new HashSet<EquationReadingHead<E, Subtype>>();
-          s.add(head);
-          this.readingRegister.put(head.getCurrentDegree(), s);
-        }
-  
-        @Override
-        public boolean hasNext() {
-          while (this.nextElement == null && !this.readingRegister.isEmpty()) {
-            int currentDegree = readingRegister.firstKey();
-            Set<EquationReadingHead<E, Subtype>> s = readingRegister.get(currentDegree);
-            EquationReadingHead<E, Subtype> currentHead = s.iterator().next();
-            s.remove(currentHead);
-            if (s.isEmpty())
-              readingRegister.remove(currentDegree);
-  
-            if (currentHead.isFinished()) {
-              Factorization<E, Subtype> factorization = currentHead.getFactorization();
-              Sequence<E> sequence = factorization.extractElement(Element.D);
+      private final SortedMap<Integer, Set<EquationReadingHead<E, Subtype>>> readingRegister = new TreeMap<Integer, Set<EquationReadingHead<E, Subtype>>>();
+      private Solution<Subtype> nextElement = null;
+
+      {
+        EquationReadingHead<E, Subtype> head = new EquationReadingHead<E, Subtype>(SequenceEquation.this);
+        Set<EquationReadingHead<E, Subtype>> s = new HashSet<EquationReadingHead<E, Subtype>>();
+        s.add(head);
+        this.readingRegister.put(head.getCurrentDegree(), s);
+      }
+
+      @Override
+      public boolean hasNext() {
+        while (this.nextElement == null && !this.readingRegister.isEmpty()) {
+          int currentDegree = readingRegister.firstKey();
+          Set<EquationReadingHead<E, Subtype>> s = readingRegister.get(currentDegree);
+          EquationReadingHead<E, Subtype> currentHead = s.iterator().next();
+          s.remove(currentHead);
+          if (s.isEmpty())
+            readingRegister.remove(currentDegree);
+
+          if (currentHead.isFinished()) {
+            Factorization<E, Subtype> factorization = currentHead.getFactorization();
+            Sequence<E> sequence = factorization.extractElement(Element.D);
+            try {
               this.nextElement = new SequenceSolution<E, Subtype>(SequenceEquation.this.rebuilder.rebuild(sequence), currentDegree, factorization);
+            } catch (RebuildException e) {
+              e.printStackTrace();
             }
-            else{
-              try{
-                for (Step step : new Step[]{Step.AB, Step.AC, Step.CD, Step.BD}) {
+          }
+          else{
+            try{
+              for (Step step : new Step[]{Step.AB, Step.AC, Step.CD, Step.BD}) {
+                try {
                   if (currentHead.canStep(step)){
                     EquationReadingHead<E, Subtype> newHead = currentHead.makeStep(step, true);
                     int newDegree = newHead.getCurrentDegree();
                     readingRegister.putIfAbsent(newDegree, new HashSet<EquationReadingHead<E, Subtype>>());
                     readingRegister.get(newDegree).add(newHead);
                   }
+                } catch (RebuildException e) {
+                  e.printStackTrace();
                 }
-              } catch(ImpossibleStepException e) {
-                throw new RuntimeException(e);
               }
+            } catch(ImpossibleStepException e) {
+              throw new RuntimeException(e);
             }
           }
-  
-          if (this.nextElement == null)
-            return false;
-          else
-            return true;
         }
-  
-        @Override
-        public Solution<Subtype> next() {
-          if (this.hasNext()) {
-            Solution<Subtype> next = this.nextElement;
-            this.nextElement = null;
-            return next;
-          }
-          else
-            throw new NoSuchElementException();
+
+        if (this.nextElement == null)
+          return false;
+        else
+          return true;
+      }
+
+      @Override
+      public Solution<Subtype> next() {
+        if (this.hasNext()) {
+          Solution<Subtype> next = this.nextElement;
+          this.nextElement = null;
+          return next;
         }
+        else
+          throw new NoSuchElementException();
+      }
     };
   }
 

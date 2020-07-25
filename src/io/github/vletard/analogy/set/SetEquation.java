@@ -7,6 +7,7 @@ import java.util.Iterator;
 import io.github.vletard.analogy.DefaultEquation;
 import io.github.vletard.analogy.AtomicEquation;
 import io.github.vletard.analogy.NoSolutionException;
+import io.github.vletard.analogy.RebuildException;
 import io.github.vletard.analogy.SubtypeRebuilder;
 
 public class SetEquation<Item, Subtype extends ImmutableSet<Item>> extends DefaultEquation<Subtype, SetSolution<Item, Subtype>> {
@@ -30,7 +31,13 @@ public class SetEquation<Item, Subtype extends ImmutableSet<Item>> extends Defau
         if (new AtomicEquation<Boolean>(a.contains(item), b.contains(item), c.contains(item)).getSolution().getContent())
           solution.add(item);
       
-      return Collections.singleton(new SetSolution<Item, Subtype>(rebuilder.rebuild(new ImmutableSet<Item>(solution)), 1, this)).iterator();
+      ImmutableSet<Item> content = new ImmutableSet<Item>(solution);
+      try {
+        return Collections.singleton(new SetSolution<Item, Subtype>(rebuilder.rebuild(content), 1, this)).iterator();
+      } catch (RebuildException e) {
+        System.err.println(e + " " + new ImmutableSet<Item>(solution));
+        return Collections.emptyIterator();
+      }
     } catch (NoSolutionException e) { // if one of the objects does not respect the analogical constraint, the equation fails
       return Collections.emptyIterator();
     }

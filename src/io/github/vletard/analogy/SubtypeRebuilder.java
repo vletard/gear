@@ -19,13 +19,13 @@ import io.github.vletard.analogy.tuple.Tuple;
  * @param <Subtype> subtype to be rebuilt.
  */
 public abstract class SubtypeRebuilder<Type, Subtype extends Type> {
-  public abstract Subtype rebuild(Type object);
+  public abstract Subtype rebuild(Type object) throws RebuildException;
   
   public static <T> SubtypeRebuilder<T, T> identity() {
     return new SubtypeRebuilder<T, T>() {
 
       @Override
-      public T rebuild(T object) {
+      public T rebuild(T object) throws RebuildException {
         return object;
       }
     };

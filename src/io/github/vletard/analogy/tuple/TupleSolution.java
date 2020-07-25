@@ -2,6 +2,7 @@ package io.github.vletard.analogy.tuple;
 
 import java.util.HashMap;
 
+import io.github.vletard.analogy.RebuildException;
 import io.github.vletard.analogy.Relation;
 import io.github.vletard.analogy.Solution;
 import io.github.vletard.analogy.SubtypeRebuilder;
@@ -11,14 +12,14 @@ public class TupleSolution<E, T extends Tuple<E>> extends Solution<T> {
   private final Tuple<Solution<E>> solutionTuple;
   private final TupleRelation straightRelation, crossedRelation;
 
-  public TupleSolution(Tuple<Solution<E>> solutionTuple, int degree, TupleEquation<E, T> equation) {
-    super(extractContent(solutionTuple, equation.getRebuilder()), degree);
+  public TupleSolution(Tuple<Solution<E>> solutionTuple, int degree, SubtypeRebuilder<Tuple<E>, T> rebuilder) throws RebuildException {
+    super(extractContent(solutionTuple, rebuilder), degree);
     this.solutionTuple = solutionTuple;
     this.straightRelation = TupleRelation.newStraightRelation(this);
     this.crossedRelation = TupleRelation.newCrossedRelation(this);
   }
 
-  private static <E, T extends Tuple<E>> T extractContent(Tuple<Solution<E>> solutionTuple, SubtypeRebuilder<Tuple<E>, T> rebuilder) {
+  private static <E, T extends Tuple<E>> T extractContent(Tuple<Solution<E>> solutionTuple, SubtypeRebuilder<Tuple<E>, T> rebuilder) throws RebuildException {
     HashMap<Object, E> regular = new HashMap<Object, E>();
     for (Object key: solutionTuple.keySet())
       regular.put(key, solutionTuple.get(key).getContent());

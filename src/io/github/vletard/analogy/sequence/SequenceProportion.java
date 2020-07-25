@@ -9,6 +9,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import io.github.vletard.analogy.DefaultProportion;
+import io.github.vletard.analogy.RebuildException;
 
 /**
  * This class represents an analogical proportion. It can be initialized with 4 sequence elements
@@ -20,7 +21,7 @@ import io.github.vletard.analogy.DefaultProportion;
 public class SequenceProportion<E> extends DefaultProportion<Sequence<E>>{
   private Boolean valid;
   private Factorization<E, Sequence<E>> factorization;
-  
+
   public static class InvalidProportionException extends Exception{
     private static final long serialVersionUID = -5958668638828140006L;
     public InvalidProportionException(String string) {
@@ -31,7 +32,7 @@ public class SequenceProportion<E> extends DefaultProportion<Sequence<E>>{
   public SequenceProportion(Sequence<E> a, Sequence<E> b, Sequence<E> c, Sequence<E> d){
     super(a, b, c, d);
   }
-  
+
   /**
    * Gets the (minimal) factorization degree of this analogical Proportion.
    * @return The computed degree.
@@ -76,7 +77,7 @@ public class SequenceProportion<E> extends DefaultProportion<Sequence<E>>{
       s.remove(currentHead);
       if (s.isEmpty())
         readingRegister.remove(currentDegree);
-      
+
       if (currentHead.isFinished()) {
         this.factorization = currentHead.getFactors();
         return true;
@@ -84,10 +85,15 @@ public class SequenceProportion<E> extends DefaultProportion<Sequence<E>>{
       else{
         try{
           for (Step step : new Step[]{Step.AB, Step.AC, Step.CD, Step.BD}) {
-            if (currentHead.canStep(step)){
-              ProportionReadingHead<E> result = currentHead.makeStep(step, true);
-              readingRegister.putIfAbsent(result.getCurrentDegree(), new HashSet<ProportionReadingHead<E>>());
-              readingRegister.get(result.getCurrentDegree()).add(result);
+            try {
+              if (currentHead.canStep(step)){
+                ProportionReadingHead<E> result;
+                result = currentHead.makeStep(step, true);
+                readingRegister.putIfAbsent(result.getCurrentDegree(), new HashSet<ProportionReadingHead<E>>());
+                readingRegister.get(result.getCurrentDegree()).add(result);
+              }
+            } catch (RebuildException e) {
+              e.printStackTrace();  // TODO build factorizations with basic types while solving and only rebuild types when outputting the solution
             }
           }
         } catch(ImpossibleStepException e) {
@@ -138,7 +144,7 @@ public class SequenceProportion<E> extends DefaultProportion<Sequence<E>>{
     return this.valid;
   }
 
-  
+
   @Override
   public String toString(){
     String marker = " :: ";

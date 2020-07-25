@@ -2,6 +2,7 @@ package io.github.vletard.analogy.sequence;
 
 import java.util.List;
 
+import io.github.vletard.analogy.RebuildException;
 import io.github.vletard.analogy.SubtypeRebuilder;
 
 public class Factor<E, T extends Sequence<E>> {
@@ -10,14 +11,14 @@ public class Factor<E, T extends Sequence<E>> {
   private final boolean crossed;
   private final SubtypeRebuilder<Sequence<E>, T> rebuilder;
   
-  public Factor(boolean crossed, List<E> b, List<E> c, SubtypeRebuilder<Sequence<E>, T> rebuilder) {
+  public Factor(boolean crossed, List<E> b, List<E> c, SubtypeRebuilder<Sequence<E>, T> rebuilder) throws RebuildException {
     this.crossed = crossed;
     this.b = rebuilder.rebuild(new Sequence<E>(b));
     this.c = rebuilder.rebuild(new Sequence<E>(c));
     this.rebuilder = rebuilder;
   }
 
-  public Factor(Factor<E, T> factor, List<E> addB, List<E> addC) {
+  public Factor(Factor<E, T> factor, List<E> addB, List<E> addC) throws RebuildException {
     this.crossed = factor.isCrossed();
     this.rebuilder = factor.rebuilder;
     this.b = this.rebuilder.rebuild(Sequence.concat(factor.b, new Sequence<E>(addB)));
@@ -25,18 +26,18 @@ public class Factor<E, T extends Sequence<E>> {
   }
 
   public T getB() {
-    return b;
+    return this.b;
   }
 
   public T getC() {
-    return c;
+    return this.c;
   }
   
   public boolean isCrossed() {
     return this.crossed;
   }
 
-  public Factor<E, T> dual() {
+  public Factor<E, T> dual() throws RebuildException {
     return new Factor<E, T>(!this.crossed, this.c.toList(), this.b.toList(), this.rebuilder);
   }
 

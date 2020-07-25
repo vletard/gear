@@ -1,5 +1,6 @@
 package io.github.vletard.analogy.sequence;
 
+import io.github.vletard.analogy.RebuildException;
 import io.github.vletard.analogy.SubtypeRebuilder;
 import io.github.vletard.analogy.sequence.Step;
 
@@ -27,7 +28,7 @@ public class ProportionReadingHead<E>{
     return this.factorization.size();
   }
 
-  private ProportionReadingHead(ProportionReadingHead<E> prev, Step step) throws ImpossibleStepException{
+  private ProportionReadingHead(ProportionReadingHead<E> prev, Step step) throws ImpossibleStepException, RebuildException{
     if (!prev.canStep(step))
       throw new ImpossibleStepException();
     this.proportion = prev.proportion;
@@ -67,8 +68,9 @@ public class ProportionReadingHead<E>{
    * @param fastForward Whether to automatically repeat the same step as far as possible (keeping the same degree).  
    * @return A new reading head after performing the given step.
    * @throws ImpossibleStepException If the step cannot be applied.
+   * @throws RebuildException 
    */
-  public ProportionReadingHead<E> makeStep(Step step, boolean fastForward) throws ImpossibleStepException{
+  public ProportionReadingHead<E> makeStep(Step step, boolean fastForward) throws ImpossibleStepException, RebuildException{
     ProportionReadingHead<E> newHead = new ProportionReadingHead<E>(this, step);
     if (fastForward) {
       // An alternative to fast forwarding steps can be to adjust the tracking of explored 
